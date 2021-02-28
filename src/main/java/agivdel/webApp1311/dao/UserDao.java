@@ -8,6 +8,22 @@ import java.sql.*;
 
 public class UserDao {
 
+    public boolean addUser0(User user) {
+        return true;
+    }
+
+    public boolean setPassword(String password) {
+        return true;
+    }
+
+    public User findUser0(String username) {
+        return new User();
+    }
+
+    public boolean pay0(User user, long paymentUnit, long lowerLimit) {
+        return true;
+    }
+
     public boolean addUser(User user, long startBalance) {
         String userSqlInsert = "INSERT INTO users (username, user_password) VALUES (?,?)";
         String paymentSqlInsert = "INSERT INTO payments (user_id, balance) VALUES (?,?)";

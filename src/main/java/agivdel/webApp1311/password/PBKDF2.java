@@ -8,30 +8,18 @@ import java.security.SecureRandom;
 import org.apache.commons.codec.binary.Base64;
 
 public class PBKDF2 {
-    private int saltLength;
-    private int keyLength;
-    private int iterations;
-    private String algorithm;
-    private String pseudoRNG;
+    private static final int saltLength = 32;
+    private static final int keyLength = 512;
+    private static final int iterations = 64000;
+    private static final String algorithm = "PBKDF2WithHmacSHA1";
+    private static final String pseudoRNG = "SHA1PRNG";
 
-    public PBKDF2() {
-    }
-
-    public void adjust(String details) {
-        String[] properties = details.split("\\$");
-        this.saltLength = Integer.parseInt(properties[0]);
-        this.keyLength = Integer.parseInt(properties[1]);
-        this.iterations = Integer.parseInt(properties[2]);
-        this.algorithm = properties[3];
-        this.pseudoRNG = properties[4];
-    }
-
-    public String getSaltedHash(String password) throws Exception {
+    public static String getSaltedHash(String password) throws Exception {
         byte[] salt = SecureRandom.getInstance(pseudoRNG).generateSeed(saltLength);
         return Base64.encodeBase64String(salt) + "$" + hash(password, salt);
     }
 
-    public boolean compare(String password, String storedPassword) throws Exception {
+    public static boolean compare(String password, String storedPassword) throws Exception {
         String[] saltAndPassword = storedPassword.split("\\$");
         if (saltAndPassword.length != 2) {
             throw new IllegalStateException("The stored password have the form 'salt$hash'");
@@ -40,7 +28,7 @@ public class PBKDF2 {
         return hashOfInput.equals(saltAndPassword[1]);
     }
 
-    private String hash(String password, byte[] salt) throws Exception {
+    private static String hash(String password, byte[] salt) throws Exception {
         if (password == null || password.length() == 0) {
             throw new IllegalArgumentException("Empty passwords are not supported");
         }

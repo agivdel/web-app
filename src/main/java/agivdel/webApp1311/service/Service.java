@@ -37,7 +37,7 @@ public class Service {
 
     private boolean comparePasswords(User user, User storedUser) {
         try {
-            return new PBKDF2().compare(user.getPassword(), storedUser.getPassword());
+            return PBKDF2.compare(user.getPassword(), storedUser.getPassword());
         } catch (Exception e) {
             System.err.println("failed to hash the password. Re-enter the data for registration");
         }
@@ -46,7 +46,7 @@ public class Service {
 
     private String saltPassword(User user) {
         try {
-            return new PBKDF2().getSaltedHash(user.getPassword());
+            return PBKDF2.getSaltedHash(user.getPassword());
         } catch (Exception e) {
             System.err.println("failed to hash the password. Re-enter the data for registration");
         }
