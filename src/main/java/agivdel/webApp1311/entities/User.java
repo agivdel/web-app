@@ -1,7 +1,5 @@
 package agivdel.webApp1311.entities;
 
-import java.util.Objects;
-
 public class User {
     private int id;
     private String username;
@@ -61,15 +59,7 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id &&
-                username.equals(user.username) &&
-                password.equals(user.password) &&
-                balance.equals(user.balance);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, username, password, balance);
+        return id == user.id;
     }
 
     @Override
