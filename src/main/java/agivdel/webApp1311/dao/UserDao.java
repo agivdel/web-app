@@ -47,6 +47,7 @@ public class UserDao {
                 System.err.println("SQLException: " + ex.getSQLState());
             }
         }
+        //TODO con нигде не закрывается!
         return false;
     }
 

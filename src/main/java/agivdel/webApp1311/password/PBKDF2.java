@@ -7,7 +7,7 @@ import java.security.SecureRandom;
 
 import org.apache.commons.codec.binary.Base64;
 
-public class PBKDF2 implements Password {
+public class PBKDF2 {
     private int saltLength;
     private int keyLength;
     private int iterations;
@@ -17,7 +17,6 @@ public class PBKDF2 implements Password {
     public PBKDF2() {
     }
 
-    @Override
     public void adjust(String details) {
         String[] properties = details.split("\\$");
         this.saltLength = Integer.parseInt(properties[0]);
@@ -27,13 +26,11 @@ public class PBKDF2 implements Password {
         this.pseudoRNG = properties[4];
     }
 
-    @Override
     public String getSaltedHash(String password) throws Exception {
         byte[] salt = SecureRandom.getInstance(pseudoRNG).generateSeed(saltLength);
         return Base64.encodeBase64String(salt) + "$" + hash(password, salt);
     }
 
-    @Override
     public boolean compare(String password, String storedPassword) throws Exception {
         String[] saltAndPassword = storedPassword.split("\\$");
         if (saltAndPassword.length != 2) {
