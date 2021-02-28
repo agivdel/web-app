@@ -56,13 +56,15 @@ public class User {
         this.balance.setValue(balance);
     }
 
-    //TODO так ли он нужен, если мы не проверяем баланс, а пароли сравнимаем после хеширования?
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof User)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id && username.equals(user.username) && password.equals(user.password) && balance.equals(user.balance);
+        return id == user.id &&
+                username.equals(user.username) &&
+                password.equals(user.password) &&
+                balance.equals(user.balance);
     }
 
     @Override

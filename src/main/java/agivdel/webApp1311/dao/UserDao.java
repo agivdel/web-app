@@ -23,7 +23,6 @@ public class UserDao {
 
             ResultSet rs = pstUser.getGeneratedKeys();
             if (!rs.next()) {
-                System.out.println("failed load resultSet with key");
                 return false;
             }
             int user_id = rs.getInt("id");
@@ -33,23 +32,18 @@ public class UserDao {
             pstPayment.executeUpdate();
 
             con.commit();
-            System.out.println("add new user");
             return true;
         } catch (SQLException e) {
-            System.err.println("1.0");
             System.err.println("SQLException: " + e.getSQLState());
             try {
                 con.rollback();
             } catch (SQLException ex) {
-                System.err.println("1.1");
                 System.err.println("SQLException: " + ex.getSQLState());
             }
         } finally {
-            System.out.println("finally in addNewUser()");
             try {
                 con.setAutoCommit(true);
             } catch (SQLException ex) {
-                System.err.println("1.2");
                 System.err.println("SQLException: " + ex.getSQLState());
             }
         }
@@ -82,10 +76,8 @@ public class UserDao {
             user.setBalance(balance);
 
         } catch (SQLException e) {
-            System.err.println("2");
             System.err.println("SQLException: " + e.getSQLState());
         }
-        System.out.println("findByUsername(), before return: " + user);
         return user;
     }
 
@@ -107,13 +99,11 @@ public class UserDao {
                 return -1;
             }
             currentBalance = resultSet.getInt(1);
-            System.out.println("pay(), balance before payment: " + currentBalance);
             long subtotal = currentBalance - paymentUnit;
             if (subtotal <= lowerLimit) {
                 return -1;
             }
             currentBalance = subtotal;
-            System.out.println("pay(), balance after payment: " + currentBalance);
 
             //а можно всегда возвращать currentBalance
             //в случае нехватки средств на счету делать return сразу же текущим значением currentBalance, а не с -1
@@ -124,23 +114,18 @@ public class UserDao {
             pstPaymentNew.executeUpdate();
 
             con.commit();
-            System.out.println("after commit, before return currentBalance");
             return currentBalance;
         } catch (SQLException e) {
-            System.err.println("3.0");
             System.err.println("SQLException: " + e.getSQLState());
             try {
                 con.rollback();
             } catch (SQLException ex) {
-                System.err.println("3.1");
                 System.err.println("SQLException: " + ex.getSQLState());
             }
         } finally {
-            System.out.println("finally in pay()");
             try {
                 con.setAutoCommit(true);
             } catch (SQLException ex) {
-                System.err.println("3.2");
                 System.err.println("SQLException: " + ex.getSQLState());
             }
         }

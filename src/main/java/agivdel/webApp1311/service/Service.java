@@ -9,7 +9,7 @@ import java.util.Properties;
 public class Service {
     public boolean authentication(User user) {
         User storedUser = getUserByName(user);
-        return user.getUsername().equals(storedUser.getUsername()) && compare(user.getPassword(), storedUser.getPassword());
+        return user.equals(storedUser) && comparePasswords(user, storedUser);
     }
 
     public boolean isUserExists(User user) {
@@ -34,9 +34,9 @@ public class Service {
         return newBalance;
     }
 
-    private boolean compare(String password, String storedPassword) {
+    private boolean comparePasswords(User user, User storedUser) {
         try {
-            return new PBKDF2().compare(password, storedPassword);
+            return new PBKDF2().compare(user.getPassword(), storedUser.getPassword());
         } catch (Exception e) {
             System.err.println("failed to hash the password. Re-enter the data for registration");
         }
