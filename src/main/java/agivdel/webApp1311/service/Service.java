@@ -30,7 +30,7 @@ public class Service {
     public long pay(User user) {
         long newBalance = new UserDao().pay(user, paymentUnit(), lowerLimit());
         if (newBalance == -1) {
-            throw new IllegalArgumentException("There are not enough funds on your account ");
+            throw new IllegalArgumentException("There are not enough funds on your account");
         }
         return newBalance;
     }
