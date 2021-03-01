@@ -12,6 +12,7 @@ public class UserDao {
     private static final String INSERT_INTO_BALANCES_ID_BALANCE = "INSERT INTO balances (id, balance) VALUES (?,?)";
     private static final String UPDATE_BALANCES_SET_BALANCE = "UPDATE balances SET balance=? WHERE id=?";
     private static final String SELECT_BALANCE_FROM_BALANCES = "SELECT balance FROM balances WHERE id=?";
+    private static final String INSERT_INTO_PAYMENTS_ID_PAYMENT = "INSERT INTO payments (user_id, payment) VALUES (?,?)";
 
     public void insertUser(Connection con, User user) throws Exception {
         // Перед возвратом Connection con в пул все Statement'ы и ResultSet'ы,
@@ -70,5 +71,12 @@ public class UserDao {
             throw new Exception("database access error");
         }
         return resultSetBalance.getLong(1);
+    }
+
+    public void insertPayment(Connection con, int userId, long payment) throws SQLException {
+        PreparedStatement pstBalances = con.prepareStatement(INSERT_INTO_PAYMENTS_ID_PAYMENT);
+        pstBalances.setInt(1, userId);
+        pstBalances.setLong(2, payment);
+        pstBalances.executeUpdate();
     }
 }
