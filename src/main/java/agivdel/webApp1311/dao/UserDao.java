@@ -7,7 +7,7 @@ import java.sql.*;
 
 public class UserDao {
 
-    public void addUser(Connection con, User user) throws Exception {
+    public void insertUser(Connection con, User user) throws Exception {
         String userSqlInsert = "INSERT INTO users (username) VALUES (?)";
 
         // Перед возвратом Connection con в пул все Statement'ы и ResultSet'ы,
@@ -23,15 +23,6 @@ public class UserDao {
         user.setId(resultSet.getInt("id"));
     }
 
-    public void updateBalance(Connection con, int userId, long balance) throws SQLException {
-        String balancesSqlUpdate = "UPDATE balances SET balance=? WHERE id=?";
-
-        PreparedStatement pstBalances = con.prepareStatement(balancesSqlUpdate);
-        pstBalances.setLong(1, balance);
-        pstBalances.setInt(2, userId);
-        pstBalances.executeUpdate();
-    }
-
     public void updatePassword(Connection con, int userId, String password) throws SQLException {
         String userSqlInsert = "UPDATE users SET password=? WHERE id=?";
 
@@ -41,7 +32,7 @@ public class UserDao {
         pstUsers.executeUpdate();
     }
 
-    public User findUser(Connection con, String username) throws Exception {
+    public User selectUser(Connection con, String username) throws Exception {
         String userSqlSelect = "SELECT id, password FROM users WHERE username=?";
 
         PreparedStatement pstUser = con.prepareStatement(userSqlSelect);
@@ -56,13 +47,31 @@ public class UserDao {
         return new User(userId, username, password);
     }
 
-    public Long findBalance(Connection con, int userId) throws Exception {
+    public void insertBalance(Connection con, int userId, long balance) throws SQLException {
+        String balancesSqlUpdate = "INSERT INTO balances (id, balance) VALUES (?,?)";
+
+        PreparedStatement pstBalances = con.prepareStatement(balancesSqlUpdate);
+        pstBalances.setInt(1, userId);
+        pstBalances.setLong(2, balance);
+        pstBalances.executeUpdate();
+    }
+
+    public void updateBalance(Connection con, int userId, long balance) throws SQLException {
+        String balancesSqlUpdate = "UPDATE balances SET balance=? WHERE id=?";
+
+        PreparedStatement pstBalances = con.prepareStatement(balancesSqlUpdate);
+        pstBalances.setLong(1, balance);
+        pstBalances.setInt(2, userId);
+        pstBalances.executeUpdate();
+    }
+
+    public Long selectBalance(Connection con, int userId) throws Exception {
         String balanceSqlSelect = "SELECT balance FROM balances WHERE id=?";
 
         PreparedStatement pstBalance = con.prepareStatement(balanceSqlSelect);
         pstBalance.setInt(1, userId);
 
-        ResultSet resultSetBalance = pstBalance.getResultSet();
+        ResultSet resultSetBalance = pstBalance.executeQuery();
         if (!resultSetBalance.next()) {
             throw new Exception("database access error");
         }
