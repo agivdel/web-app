@@ -8,7 +8,7 @@ import java.util.Properties;
 public class ConnectionManager {
     public static Connection getConnection() {
         Connection connection = null;
-        Properties property = PropertiesManager.getProperties();
+        Properties property = PropertiesReader.getProperties();
         try {
             Class.forName(property.getProperty("database.driverClassName"));
             connection = DriverManager.getConnection(

@@ -4,7 +4,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
-public class PropertiesManager {
+public class PropertiesReader {
     public static Properties getProperties() {
         Properties property = new Properties();
         try {

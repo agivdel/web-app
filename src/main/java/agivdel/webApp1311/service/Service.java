@@ -1,7 +1,7 @@
 package agivdel.webApp1311.service;
 
 import agivdel.webApp1311.password.PBKDF2;
-import agivdel.webApp1311.utils.PropertiesManager;
+import agivdel.webApp1311.utils.PropertiesReader;
 import agivdel.webApp1311.dao.UserDao;
 import agivdel.webApp1311.entities.User;
 
@@ -58,17 +58,17 @@ public class Service {
      * To be able to change the initial account balance, payment amount and account balance.
      */
     private long startBalance() {
-        Properties property = PropertiesManager.getProperties();
+        Properties property = PropertiesReader.getProperties();
         return Long.parseLong(property.getProperty("payment.startBalance"));
     }
 
     private long paymentUnit() {
-        Properties property = PropertiesManager.getProperties();
+        Properties property = PropertiesReader.getProperties();
         return Long.parseLong(property.getProperty("payment.unit"));
     }
 
     private long lowerLimit() {
-        Properties property = PropertiesManager.getProperties();
+        Properties property = PropertiesReader.getProperties();
         return Long.parseLong(property.getProperty("payment.lowerLimit"));
     }
 }
