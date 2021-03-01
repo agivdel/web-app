@@ -43,7 +43,7 @@ public class LogInServlet extends HttpServlet {
             //если пользователя с таким именем нет в БД
             //пробрасываем вновь на страницу аутентификации
             //показываем ошибку ввода
-            if (user == null) {
+            if (user.getId() == 0) {
                 repeatLogIn(req, resp, newUser, "this username was not found");
             }
         } catch (Exception e) {
