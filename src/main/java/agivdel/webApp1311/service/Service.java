@@ -1,6 +1,6 @@
 package agivdel.webApp1311.service;
 
-import agivdel.webApp1311.utils.ConnectionPool;
+import agivdel.webApp1311.utils.ConnectionPoolHikariCP;
 import agivdel.webApp1311.password.PBKDF2;
 import agivdel.webApp1311.utils.PropertiesReader;
 import agivdel.webApp1311.dao.UserDao;
@@ -14,7 +14,10 @@ public class Service {
 
     public boolean authentication(User user) throws Exception {
         User storedUser = findUser(user);
-        return user.equals(storedUser) && comparePasswords(user, storedUser);
+        if (!user.equals(storedUser) && !comparePasswords(user, storedUser)) {
+            throw new Exception("invalid username-password pair");
+        }
+        return true;
     }
 
     public boolean isUserExists(User user) throws Exception {
@@ -24,12 +27,12 @@ public class Service {
 
     public boolean signUp(User user) throws Exception {
         UserDao userDao = new UserDao();
-        ConnectionPool pool = new ConnectionPool();
+        ConnectionPoolHikariCP pool = new ConnectionPoolHikariCP();
         Connection con = pool.getConnection();
         try {
             con.setAutoCommit(false);
-            userDao.addUser(con, user);
-            userDao.updateBalance(con, user.getId(), startBalance());
+            userDao.insertUser(con, user);
+            userDao.insertBalance(con, user.getId(), startBalance());
             userDao.updatePassword(con, user.getId(), saltPassword(user));
             con.commit();
         } catch (SQLException ex) {
@@ -50,18 +53,18 @@ public class Service {
 
     public User findUser(User user) throws Exception {
         UserDao userDao = new UserDao();
-        ConnectionPool pool = new ConnectionPool();
+        ConnectionPoolHikariCP pool = new ConnectionPoolHikariCP();
         Connection con = pool.getConnection();
         User storedUser = null;
         try {
-            con.setAutoCommit(false);//TODO нужно или нет?
-            storedUser = userDao.findUser(con, user.getUsername());
-            Long balance = userDao.findBalance(con, storedUser.getId());
+            con.setAutoCommit(false);
+            storedUser = userDao.selectUser(con, user.getUsername());
+            Long balance = userDao.selectBalance(con, storedUser.getId());
             storedUser.setBalance(balance);
-            con.commit();//TODO нужно или нет?
+            con.commit();
         } catch (SQLException ex) {
             try {
-                con.rollback();//TODO нужно или нет?
+                con.rollback();
             } catch (SQLException e) {
                 e.printStackTrace();
                 throw new Exception("transaction rollback error ");
@@ -77,13 +80,13 @@ public class Service {
 
     public User pay(User user) throws Exception {
         UserDao userDao = new UserDao();
-        ConnectionPool pool = new ConnectionPool();
+        ConnectionPoolHikariCP pool = new ConnectionPoolHikariCP();
         Connection con = pool.getConnection();
         User storedUser = null;
         try {
             con.setAutoCommit(false);
-            storedUser = userDao.findUser(con, user.getUsername());
-            Long balance = userDao.findBalance(con, storedUser.getId());
+            storedUser = userDao.selectUser(con, user.getUsername());
+            Long balance = userDao.selectBalance(con, storedUser.getId());
             long subtotal = balance - paymentUnit();
             if (subtotal <= lowerLimit()) {
                 throw  new Exception("There are not enough funds on your account");
