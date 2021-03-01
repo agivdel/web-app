@@ -14,18 +14,12 @@ public class Service {
 
     public boolean authentication(User user) throws Exception {
         User storedUser = findUser(user);
-        if (storedUser == null) {
-            throw new Exception("this username was not found");
-        }
-        if (!comparePasswords(user, storedUser)) {
-            throw new Exception("invalid username-password pair");
-        }
-        return true;
+        return user.equals(storedUser) && comparePasswords(user, storedUser);
     }
 
     public boolean isUserExists(User user) throws Exception {
         User storedUser = findUser(user);
-        return storedUser.getId() != 0;
+        return storedUser != null;
     }
 
     public boolean signUp(User user) throws Exception {
