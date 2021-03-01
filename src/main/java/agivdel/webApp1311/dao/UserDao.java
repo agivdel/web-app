@@ -45,7 +45,7 @@ public class UserDao {
 
         ResultSet resultSetUser = pstUser.executeQuery();
         if (!resultSetUser.next()) {
-            return null;
+            return new User();//возврат user c id=0
         }
         int userId = resultSetUser.getInt(1);
         String password = resultSetUser.getString(2);
@@ -72,7 +72,7 @@ public class UserDao {
 
         ResultSet resultSetBalance = pstBalance.executeQuery();
         if (!resultSetBalance.next()) {
-            throw new Exception("database access error");
+            throw new Exception("this userId was not found");
         }
         return resultSetBalance.getLong(1);
     }
