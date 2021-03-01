@@ -1,19 +1,32 @@
 package agivdel.webApp1311.dao;
 
+import agivdel.webApp1311.entities.Payment;
 import agivdel.webApp1311.entities.User;
 import agivdel.webApp1311.utils.ConnectionCreator;
 import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class UserDaoTest {
     private static Connection con;
     private static UserDao userDao;
 
+    private void clearDB() throws SQLException {
+        con.createStatement().execute("DELETE FROM users");
+        con.createStatement().execute("DELETE FROM balances");
+        con.createStatement().execute("DELETE FROM payments");
+    }
+
     @BeforeEach
-    public void init() {
+    public void init() throws SQLException {
         userDao = new UserDao();
         con = new ConnectionCreator().getConnection();
+        clearDB();
     }
 
     @AfterEach
@@ -27,7 +40,7 @@ public class UserDaoTest {
         userDao.insertUser(con, user);
 
         User storedUser = userDao.selectUser(con, user.getUsername());
-        Assertions.assertEquals(user, storedUser);
+        assertEquals(user, storedUser);
     }
 
     @Test
@@ -37,7 +50,7 @@ public class UserDaoTest {
         userDao.updatePassword(con, user.getId(), user.getPassword());
 
         User storedUser = userDao.selectUser(con, user.getUsername());
-        Assertions.assertEquals(user.getPassword(), storedUser.getPassword());
+        assertEquals(user.getPassword(), storedUser.getPassword());
     }
 
     @Test
@@ -47,6 +60,34 @@ public class UserDaoTest {
         userDao.insertBalance(con, user.getId(), 800);
 
         Long storedBalance = userDao.selectBalance(con, user.getId());
-        Assertions.assertEquals(800, storedBalance);
+        assertEquals(800, storedBalance);
+    }
+
+    @Test
+    public void insertPaymentEqualsSelectPayment() throws Exception {
+        User user = new User("Toyvo", "Luden");
+        userDao.insertUser(con, user);
+        userDao.insertPayment(con, user.getId(), 110L);
+        userDao.insertPayment(con, user.getId(), 110L);
+
+        List<Payment> payments = userDao.selectPayments(con, user.getId());
+        assertEquals(user.getId(), payments.get(0).getUserId());
+        assertEquals(user.getId(), payments.get(1).getUserId());
+
+        assertEquals(110L, payments.get(0).getPayment());
+        assertEquals(110L, payments.get(1).getPayment());
+    }
+
+    @Test
+    public void SelectAllColumnsFromPayments() throws Exception {
+        User user = new User("Toyvo", "Luden");
+        userDao.insertUser(con, user);
+        userDao.insertPayment(con, user.getId(), 110L);
+
+        List<Payment> payments = userDao.selectPayments(con, user.getId());
+        assertNotEquals(0, payments.get(0).getId());
+        assertNotEquals(0, payments.get(0).getUserId());
+        assertNotNull(payments.get(0).getPayment());
+        assertNotNull(payments.get(0).getPaymentTime());
     }
 }

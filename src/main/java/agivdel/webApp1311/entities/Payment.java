@@ -9,6 +9,11 @@ public class Payment {
     private Long payment;
     private Timestamp paymentTime;
 
+    public Payment(int userId, Long payment) {
+        this.userId = userId;
+        this.payment = payment;
+    }
+
     public Payment(int id, int userId, Long payment, Timestamp paymentTime) {
         this.id = id;
         this.userId = userId;
