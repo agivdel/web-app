@@ -34,13 +34,13 @@ public class UserDao {
         pstUsers.executeUpdate();
     }
 
-    public User selectUser(Connection con, String username) throws Exception {
+    public User selectUser(Connection con, String username) throws SQLException {
         PreparedStatement pstUser = con.prepareStatement(SELECT_ID_PASSWORD_FROM_USERS);
         pstUser.setString(1, username);
 
         ResultSet resultSetUser = pstUser.executeQuery();
         if (!resultSetUser.next()) {
-            throw new Exception("database access error");
+            return new User();
         }
         int userId = resultSetUser.getInt(1);
         String password = resultSetUser.getString(2);
