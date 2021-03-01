@@ -37,7 +37,7 @@ public class Service {
                 con.rollback();
             } catch (SQLException e) {
                 e.printStackTrace();
-                throw new Exception("transaction rollback error ");
+                throw new Exception("transaction rollback error");
             }
             throw new Exception("database access error");
         } catch (Exception e) {
@@ -45,7 +45,7 @@ public class Service {
         } finally {
             pool.close(con);
         }
-        return false;
+        return true;
     }
 
     public User findUser(User user) throws Exception {
