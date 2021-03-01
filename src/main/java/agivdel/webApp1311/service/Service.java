@@ -89,6 +89,7 @@ public class Service {
                 throw  new Exception("There are not enough funds on your account");
             }
             userDao.updateBalance(con, storedUser.getId(), subtotal);
+            userDao.insertPayment(con, storedUser.getId(), paymentUnit());
             con.commit();
         } catch (SQLException ex) {
             try {
