@@ -68,6 +68,6 @@ public class User {
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", " + balance + "}";
+                ", balance=" + balance + " cents}";
     }
 }
