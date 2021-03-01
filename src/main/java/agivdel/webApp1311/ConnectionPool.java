@@ -8,16 +8,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class ConnectionPool {
-    private static ConnectionPool instance = null;
-
-    private ConnectionPool() {
-    }
-
-    public static ConnectionPool getInstance() {
-        if (instance == null)
-            instance = new ConnectionPool();
-        return instance;
-    }
+//    private static ConnectionPool instance = null;
+//
+//    private ConnectionPool() {
+//    }
+//
+//    public static ConnectionPool getInstance() {
+//        if (instance == null)
+//            instance = new ConnectionPool();
+//        return instance;
+//    }
 
     public Connection getConnection() {
         Context context;
@@ -30,5 +30,15 @@ public class ConnectionPool {
             e.printStackTrace();
         }
         return connection;
+    }
+
+    public void close(Connection connection) {
+        try {
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

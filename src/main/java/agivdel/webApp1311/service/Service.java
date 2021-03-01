@@ -1,13 +1,24 @@
 package agivdel.webApp1311.service;
 
+import agivdel.webApp1311.ConnectionPool;
 import agivdel.webApp1311.password.PBKDF2;
 import agivdel.webApp1311.utils.PropertiesReader;
 import agivdel.webApp1311.dao.UserDao;
 import agivdel.webApp1311.entities.User;
 
+import java.sql.Connection;
 import java.util.Properties;
 
 public class Service {
+    private void getSomething() {
+        Connection con = new ConnectionPool().getConnection();
+        try {
+
+        } finally {
+            new ConnectionPool().close(con);
+        }
+    }
+
     public boolean authentication(User user) {
         User storedUser = getUserByName(user);
         return user.equals(storedUser) && comparePasswords(user, storedUser);
@@ -35,6 +46,8 @@ public class Service {
         return newBalance;
     }
 
+
+
     private boolean comparePasswords(User user, User storedUser) {
         try {
             return PBKDF2.compare(user.getPassword(), storedUser.getPassword());
@@ -52,7 +65,6 @@ public class Service {
         }
         return user.getPassword();
     }
-
 
     /**
      * To be able to change the initial account balance, payment amount and account balance.
