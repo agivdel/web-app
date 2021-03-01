@@ -7,6 +7,6 @@
     password="password"
     driverClassName="org.postgresql.Driver"
     url="jdbc:postgresql://localhost:5432/db000"
-    maxActive="10"
-    maxIdle="4"/>
+    maxActive="50"
+    maxIdle="40"/>
 </Context>
