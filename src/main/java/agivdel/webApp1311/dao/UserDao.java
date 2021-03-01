@@ -1,6 +1,5 @@
 package agivdel.webApp1311.dao;
 
-import agivdel.webApp1311.utils.ConnectionManager;
 import agivdel.webApp1311.entities.User;
 
 import java.lang.String;
@@ -8,144 +7,61 @@ import java.sql.*;
 
 public class UserDao {
 
-    public boolean addUser0(User user) {
-        return true;
-    }
+    public void addUser(Connection con, User user) throws Exception {
+        String userSqlInsert = "INSERT INTO users (username) VALUES (?)";
 
-    public boolean setPassword(String password) {
-        return true;
-    }
+        PreparedStatement pstUsers = con.prepareStatement(userSqlInsert, new String[]{"id"});
+        pstUsers.setString(1, user.getUsername());
+        pstUsers.executeUpdate();
 
-    public User findUser0(String username) {
-        return new User();
-    }
-
-    public boolean pay0(User user, long paymentUnit, long lowerLimit) {
-        return true;
-    }
-
-    public boolean addUser(User user, long startBalance) {
-        String userSqlInsert = "INSERT INTO users (username, user_password) VALUES (?,?)";
-        String paymentSqlInsert = "INSERT INTO payments (user_id, balance) VALUES (?,?)";
-        Connection con = ConnectionManager.getConnection();
-        try (PreparedStatement pstUser = con.prepareStatement(userSqlInsert, new String[]{"id"});
-             PreparedStatement pstPayment = con.prepareStatement(paymentSqlInsert)) {
-
-            con.setAutoCommit(false);
-
-            pstUser.setString(1, user.getUsername());
-            pstUser.setString(2, user.getPassword());
-            pstUser.executeUpdate();
-
-            ResultSet rs = pstUser.getGeneratedKeys();
-            if (!rs.next()) {
-                return false;
-            }
-            int user_id = rs.getInt("id");
-
-            pstPayment.setInt(1, user_id);
-            pstPayment.setLong(2, startBalance);
-            pstPayment.executeUpdate();
-
-            con.commit();
-            return true;
-        } catch (SQLException e) {
-            System.err.println("SQLException: " + e.getSQLState());
-            try {
-                con.rollback();
-            } catch (SQLException ex) {
-                System.err.println("SQLException: " + ex.getSQLState());
-            }
-        } finally {
-            try {
-                con.setAutoCommit(true);
-            } catch (SQLException ex) {
-                System.err.println("SQLException: " + ex.getSQLState());
-            }
+        ResultSet resultSet = pstUsers.getGeneratedKeys();
+        if (!resultSet.next()) {
+            throw new Exception("database access error");
         }
-        //TODO con нигде не закрывается!
-        return false;
+        user.setId(resultSet.getInt("id"));
     }
 
-    public User findUser(String username) {
+    public void updateBalance(Connection con, int userId, long balance) throws Exception {
+        String balancesSqlUpdate = "UPDATE balances SET balance=? WHERE id=?";
+
+        PreparedStatement pstBalances = con.prepareStatement(balancesSqlUpdate);
+        pstBalances.setLong(1, balance);
+        pstBalances.setInt(2, userId);
+        pstBalances.executeUpdate();
+    }
+
+    public void updatePassword(Connection con, int userId, String password) throws SQLException {
+        String userSqlInsert = "UPDATE users SET password=? WHERE id=?";
+
+        PreparedStatement pstUsers = con.prepareStatement(userSqlInsert);
+        pstUsers.setString(1, password);
+        pstUsers.setInt(2, userId);
+        pstUsers.executeUpdate();
+    }
+
+    public User findUser(Connection con, String username) throws Exception {
         String userSqlSelect = "SELECT id, password FROM users WHERE username=?";
-        String paymentSqlSelect = "SELECT balance FROM payments WHERE id = (SELECT MAX(id) FROM payments WHERE user_id=?)";
-        User user = new User();//создаем пустого юзера (id=0)
-        Connection con = ConnectionManager.getConnection();
-        try (PreparedStatement pstUser = con.prepareStatement(userSqlSelect);
-             PreparedStatement pstPayment = con.prepareStatement(paymentSqlSelect)) {
 
-            pstUser.setString(1, username);
-            ResultSet resultSetUser = pstUser.executeQuery();
-            if (!resultSetUser.next()) {
-                return user;//возвращаем пустого юзера (id=0)
-            }
-            int userId = resultSetUser.getInt(1);
-            String password = resultSetUser.getString(2);
-            user = new User(userId, username, password);
-
-            pstPayment.setInt(1, user.getId());
-            ResultSet resultSetPayment = pstPayment.executeQuery();
-            if (!resultSetPayment.next()) {
-                return user;
-            }
-            long balance = resultSetPayment.getLong(1);
-            user.setBalance(balance);
-
-        } catch (SQLException e) {
-            System.err.println("SQLException: " + e.getSQLState());
+        PreparedStatement pstUser = con.prepareStatement(userSqlSelect);
+        pstUser.setString(1, username);
+        ResultSet resultSetUser = pstUser.executeQuery();
+        if (!resultSetUser.next()) {
+            throw new Exception("database access error");
         }
-        return user;
+        int userId = resultSetUser.getInt(1);
+        String password = resultSetUser.getString(2);
+        return new User(userId, username, password);
     }
 
-    public long pay(User user, long paymentUnit, long lowerLimit) {
-        String paymentSqlSelect = "SELECT balance FROM payments WHERE id = (SELECT MAX(id) FROM payments WHERE user_id=?)";
-        String paymentSqlInsert = "INSERT INTO payments (user_id, balance) VALUES (?,?)";
-        //TODO оформить двойные записи вместо одинарных
-        long currentBalance = 0;
-        Connection con = ConnectionManager.getConnection();
-        try (PreparedStatement pstPaymentOld = con.prepareStatement(paymentSqlSelect);
-             PreparedStatement pstPaymentNew = con.prepareStatement(paymentSqlInsert)) {
+    public Long findBalance(Connection con, int userId) throws Exception {
+        String balanceSqlSelect = "SELECT balance FROM balances WHERE id=?";
 
-            con.setAutoCommit(false);
-
-            pstPaymentOld.setInt(1, user.getId());
-            ResultSet resultSet = pstPaymentOld.executeQuery();
-
-            if (!resultSet.next()) {
-                return -1;
-            }
-            currentBalance = resultSet.getInt(1);
-            long subtotal = currentBalance - paymentUnit;
-            if (subtotal <= lowerLimit) {
-                return -1;
-            }
-            currentBalance = subtotal;
-
-            //а можно всегда возвращать currentBalance
-            //в случае нехватки средств на счету делать return сразу же текущим значением currentBalance, а не с -1
-            //при этом нужно выдавать исключение с сообщением о нехватке средств, пробрасывая его на самый вверх
-
-            pstPaymentNew.setInt(1, user.getId());
-            pstPaymentNew.setLong(2, currentBalance);
-            pstPaymentNew.executeUpdate();
-
-            con.commit();
-            return currentBalance;
-        } catch (SQLException e) {
-            System.err.println("SQLException: " + e.getSQLState());
-            try {
-                con.rollback();
-            } catch (SQLException ex) {
-                System.err.println("SQLException: " + ex.getSQLState());
-            }
-        } finally {
-            try {
-                con.setAutoCommit(true);
-            } catch (SQLException ex) {
-                System.err.println("SQLException: " + ex.getSQLState());
-            }
+        PreparedStatement pstBalance = con.prepareStatement(balanceSqlSelect);
+        pstBalance.setInt(1, userId);
+        ResultSet resultSetBalance = pstBalance.getResultSet();
+        if (!resultSetBalance.next()) {
+            throw new Exception("database access error");
         }
-        return -1;
+        return resultSetBalance.getLong(1);
     }
 }

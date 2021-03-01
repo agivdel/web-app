@@ -1,52 +1,110 @@
 package agivdel.webApp1311.service;
 
-import agivdel.webApp1311.ConnectionPool;
+import agivdel.webApp1311.utils.ConnectionPool;
 import agivdel.webApp1311.password.PBKDF2;
 import agivdel.webApp1311.utils.PropertiesReader;
 import agivdel.webApp1311.dao.UserDao;
 import agivdel.webApp1311.entities.User;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Properties;
 
 public class Service {
-    private void getSomething() {
-        Connection con = new ConnectionPool().getConnection();
-        try {
 
-        } finally {
-            new ConnectionPool().close(con);
-        }
-    }
-
-    public boolean authentication(User user) {
-        User storedUser = getUserByName(user);
+    public boolean authentication(User user) throws Exception {
+        User storedUser = findUser(user);
         return user.equals(storedUser) && comparePasswords(user, storedUser);
     }
 
-    public boolean isUserExists(User user) {
-        User storedUser = getUserByName(user);
+    public boolean isUserExists(User user) throws Exception {
+        User storedUser = findUser(user);
         return storedUser.getId() != 0;
     }
 
-    public User getUserByName(User user) {
-        return new UserDao().findUser(user.getUsername());
-    }
-
-    public boolean signUp(User user) {
-        user.setPassword(saltPassword(user));
-        return new UserDao().addUser(user, startBalance());
-    }
-
-    public long pay(User user) {
-        long newBalance = new UserDao().pay(user, paymentUnit(), lowerLimit());
-        if (newBalance == -1) {
-            throw new IllegalArgumentException("There are not enough funds on your account");
+    public boolean signUp(User user) throws Exception {
+        UserDao userDao = new UserDao();
+        ConnectionPool pool = new ConnectionPool();
+        Connection con = pool.getConnection();
+        try {
+            con.setAutoCommit(false);
+            userDao.addUser(con, user);
+            userDao.updateBalance(con, user.getId(), startBalance());
+            userDao.updatePassword(con, user.getId(), saltPassword(user));
+            con.commit();
+        } catch (SQLException ex) {
+            try {
+                con.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new Exception("transaction rollback error ");
+            }
+            throw new Exception("database access error");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            pool.close(con);
         }
-        return newBalance;
+        return false;
     }
 
+    public User findUser(User user) throws Exception {
+        UserDao userDao = new UserDao();
+        ConnectionPool pool = new ConnectionPool();
+        Connection con = pool.getConnection();
+        User storedUser = null;
+        try {
+            con.setAutoCommit(false);//TODO нужно или нет?
+            storedUser = userDao.findUser(con, user.getUsername());
+            Long balance = userDao.findBalance(con, storedUser.getId());
+            storedUser.setBalance(balance);
+            con.commit();//TODO нужно или нет?
+        } catch (SQLException ex) {
+            try {
+                con.rollback();//TODO нужно или нет?
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new Exception("transaction rollback error ");
+            }
+            throw new Exception("database access error");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            pool.close(con);
+        }
+        return storedUser;
+    }
 
+    public User pay(User user) throws Exception {
+        UserDao userDao = new UserDao();
+        ConnectionPool pool = new ConnectionPool();
+        Connection con = pool.getConnection();
+        User storedUser = null;
+        try {
+            con.setAutoCommit(false);
+            storedUser = userDao.findUser(con, user.getUsername());
+            Long balance = userDao.findBalance(con, storedUser.getId());
+            long subtotal = balance - paymentUnit();
+            if (subtotal <= lowerLimit()) {
+                throw  new Exception("There are not enough funds on your account");
+            }
+            userDao.updateBalance(con, storedUser.getId(), subtotal);
+            con.commit();
+        } catch (SQLException ex) {
+            try {
+                con.rollback();
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new Exception("transaction rollback error ");
+            }
+            throw new Exception("database access error");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            pool.close(con);
+        }
+        return storedUser;
+    }
 
     private boolean comparePasswords(User user, User storedUser) {
         try {

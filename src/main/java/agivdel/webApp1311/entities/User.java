@@ -4,22 +4,22 @@ public class User {
     private int id;
     private String username;
     private String password;
-    private Balance balance;
+    private Long balance;
 
     public User() {
+    }
+
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+        this.balance = null;
     }
 
     public User(int id, String username, String password) {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.balance = new Balance(801);//изначально баланс делаем некорректным, верное значение ставим только внутри метода addNewUser()
-    }
-
-    public User(String username, String password) {
-        this.username = username;
-        this.password = password;
-        this.balance = new Balance(801);
+        this.balance = null;
     }
 
     public int getId() {
@@ -47,11 +47,11 @@ public class User {
     }
 
     public long getBalance() {
-        return balance.getValue();
+        return balance;
     }
 
     public void setBalance(long balance) {
-        this.balance.setValue(balance);
+        this.balance = balance;
     }
 
     @Override
