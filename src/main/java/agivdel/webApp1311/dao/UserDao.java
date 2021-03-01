@@ -10,6 +10,8 @@ public class UserDao {
     public void addUser(Connection con, User user) throws Exception {
         String userSqlInsert = "INSERT INTO users (username) VALUES (?)";
 
+        // Перед возвратом Connection con в пул все Statement'ы и ResultSet'ы,
+        // полученные с помощью этого соединения, автоматически закрываются в соответствии с API
         PreparedStatement pstUsers = con.prepareStatement(userSqlInsert, new String[]{"id"});
         pstUsers.setString(1, user.getUsername());
         pstUsers.executeUpdate();
@@ -21,7 +23,7 @@ public class UserDao {
         user.setId(resultSet.getInt("id"));
     }
 
-    public void updateBalance(Connection con, int userId, long balance) throws Exception {
+    public void updateBalance(Connection con, int userId, long balance) throws SQLException {
         String balancesSqlUpdate = "UPDATE balances SET balance=? WHERE id=?";
 
         PreparedStatement pstBalances = con.prepareStatement(balancesSqlUpdate);
@@ -44,6 +46,7 @@ public class UserDao {
 
         PreparedStatement pstUser = con.prepareStatement(userSqlSelect);
         pstUser.setString(1, username);
+
         ResultSet resultSetUser = pstUser.executeQuery();
         if (!resultSetUser.next()) {
             throw new Exception("database access error");
@@ -58,6 +61,7 @@ public class UserDao {
 
         PreparedStatement pstBalance = con.prepareStatement(balanceSqlSelect);
         pstBalance.setInt(1, userId);
+
         ResultSet resultSetBalance = pstBalance.getResultSet();
         if (!resultSetBalance.next()) {
             throw new Exception("database access error");
