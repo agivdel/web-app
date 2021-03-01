@@ -6,15 +6,15 @@ import java.sql.SQLException;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ConnectionManagerTest {
+public class ConnectionCreatorTest {
 
     @Test
     public void getDBConnectionTest() throws SQLException {
-        Connection con = new ConnectionManager().getConnection();
+        Connection con = new ConnectionCreator().getConnection();
 
         assertTrue(con.isValid(1));
         assertFalse(con.isClosed());
 
-        new ConnectionManager().close(con);
+        new ConnectionCreator().close(con);
     }
 }

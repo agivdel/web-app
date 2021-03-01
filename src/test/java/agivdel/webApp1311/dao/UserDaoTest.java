@@ -1,7 +1,7 @@
 package agivdel.webApp1311.dao;
 
 import agivdel.webApp1311.entities.User;
-import agivdel.webApp1311.utils.ConnectionManager;
+import agivdel.webApp1311.utils.ConnectionCreator;
 import org.junit.jupiter.api.*;
 
 import java.sql.Connection;
@@ -13,12 +13,12 @@ public class UserDaoTest {
     @BeforeEach
     public void init() {
         userDao = new UserDao();
-        con = new ConnectionManager().getConnection();
+        con = new ConnectionCreator().getConnection();
     }
 
     @AfterEach
     public void close() {
-        new ConnectionManager().close(con);
+        new ConnectionCreator().close(con);
     }
 
     @Test
