@@ -2,7 +2,6 @@ package agivdel.webApp1311.dao;
 
 import agivdel.webApp1311.entities.Payment;
 import agivdel.webApp1311.entities.User;
-import agivdel.webApp1311.password.PBKDF2;
 import agivdel.webApp1311.utils.ConnectionCreator;
 import org.junit.jupiter.api.*;
 
@@ -17,14 +16,6 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UserDaoTest {
     private static Connection con;
     private static UserDao userDao;
-
-//    @Rule
-//    public ExpectedException expectedEx = ExpectedException.none();
-//    private void expectedException(String message) {
-//        expectedEx.expect(IllegalArgumentException.class);
-//        expectedEx.expectMessage(message);
-//    }
-//    expectedException(String.format("The book.id %d already added.", book1.id));
 
 
     private void clearDB() throws SQLException {
