@@ -1,5 +1,6 @@
 package agivdel.webApp1311.service;
 
+import agivdel.webApp1311.entities.Balance;
 import agivdel.webApp1311.utils.ConnectionPoolHikariCP;
 import agivdel.webApp1311.password.PBKDF2;
 import agivdel.webApp1311.utils.PropertiesReader;
@@ -19,10 +20,15 @@ public class Service {
 
 
     public boolean authentication(String username, String password) {
-        //есть в базе такие логин и соленый пароль?
-        User user = findUser(username);
-        String saltedHash = saltPassword(password);
-        return true;
+        //есть в базе такие же логин и соленый пароль?
+        User storedUser = findUser(username);
+        return comparePasswords(password, storedUser.getPassword());
+    }
+
+    public boolean isUserExists(String username) {
+        //есть в базе такой же логин?
+        User storedUser = findUser(username);
+        return storedUser != null;
     }
 
     public boolean authentication(User user) throws Exception {
@@ -32,11 +38,6 @@ public class Service {
 
     public boolean isUserExists(User user) throws Exception {
         User storedUser = findUser(user);
-        return storedUser != null;
-    }
-
-    public boolean isUserExists(String username) throws Exception {
-        User storedUser = findUser(username);
         return storedUser != null;
     }
 
@@ -105,6 +106,10 @@ public class Service {
             pool.close(con);
         }
         return storedUser;
+    }
+
+    public long pay(int userId) {
+        return 0L;
     }
 
     public User pay(User user) throws Exception {
