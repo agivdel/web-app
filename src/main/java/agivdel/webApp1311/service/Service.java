@@ -144,6 +144,15 @@ public class Service {
         return storedUser;
     }
 
+    private boolean comparePasswords(String password, String storedPassword) {
+        try {
+            return PBKDF2.compare(password, storedPassword);
+        } catch (Exception e) {
+            System.err.println("failed to hash the password. Re-enter the data for registration");
+        }
+        return false;
+    }
+
     private boolean comparePasswords(User user, User storedUser) {
         try {
             return PBKDF2.compare(user.getPassword(), storedUser.getPassword());
