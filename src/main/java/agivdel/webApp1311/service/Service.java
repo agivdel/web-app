@@ -1,6 +1,5 @@
 package agivdel.webApp1311.service;
 
-import agivdel.webApp1311.entities.Balance;
 import agivdel.webApp1311.utils.ConnectionPoolHikariCP;
 import agivdel.webApp1311.password.PBKDF2;
 import agivdel.webApp1311.utils.PropertiesReader;
@@ -14,13 +13,11 @@ import java.util.Properties;
 public class Service {
 
     public boolean authentication(String username, String password) throws Exception {
-        //есть в базе такие же логин и соленый пароль?
         User storedUser = findUser(username);
         return comparePasswords(password, storedUser.getPassword());
     }
 
     public boolean isUserExists(String username) throws Exception {
-        //есть в базе такой же логин?
         User storedUser = findUser(username);
         return storedUser != null;
     }
@@ -50,7 +47,8 @@ public class Service {
     public long pay(String username) throws Exception {//TODO заменить на int userId?
         UserDao userDao = new UserDao();
         return doTransaction(con -> {
-            User storedUser = userDao.selectUser(con, username);
+            User storedUser = null;
+            storedUser = userDao.selectUser(con, username);
             Long balance = userDao.selectBalance(con, storedUser.getId());
             long subtotal = balance - paymentUnit();
             if (subtotal <= lowerLimit()) {
