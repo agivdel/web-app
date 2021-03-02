@@ -25,8 +25,6 @@ public class LogInServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        //содержимое метода перенести в отдельный сервис,
-        //передавать туда лоигн-пароль, принимать юзера или исключение
         String username = req.getParameter("username");
         String password = req.getParameter("password");
 
@@ -40,45 +38,29 @@ public class LogInServlet extends HttpServlet {
 
     private User userCheck(HttpServletRequest req, HttpServletResponse resp, String username, String password) throws ServletException, IOException {
         User newUser = new User(username, password);
-        if (isNotValid(newUser)) {
-            //если данные введены некорректно
-            //пробрасываем вновь на страницу аутентификации
-            //показываем пользователю ошибку ввода
+        Service service = new Service();
+        if (isNotValidEnteredData(newUser)) {
             repeatLogIn(req, resp, newUser, "enter not empty username and password");
         }
-        //если данные введены корректно
-        //ищем пользователя в БД
-        User user = null;
         try {
-            //если пользователя с таким именем нет в БД
-            //пробрасываем вновь на страницу аутентификации
-            //показываем ошибку ввода
-            if (!new Service().isUserExists(username)) {
+            if (!service.isUserExists(username)) {
                 repeatLogIn(req, resp, newUser, "this username was not found");
             }
         } catch (Exception e) {
-            //при ошибке доступа к БД показываем сообщение об этом
             repeatLogIn(req, resp, newUser, e.getMessage());
         }
-        //если до сих пор ошибки не возникло,
-        //данные введны корректно и пользователь есть в БД
-        //проверяем пароль - при совпадении создаем новый объект User
-        //если пароль не совпал,
-        //пробрасываем вновь на страницу аутентификации
         try {
-            if (!new Service().authentication(username, password)) {
+            if (!service.authentication(username, password)) {
                 repeatLogIn(req, resp, newUser, "invalid username-password pair");
             }
-            user = new Service().findUser(username);
+            newUser = service.findUser(username);
         } catch (Exception e) {
             repeatLogIn(req, resp, newUser, e.getMessage());
         }
-        //если дошли сюда,
-        //аутентификация прошла успешно,
-        return user;
+        return newUser;
     }
 
-    private boolean isNotValid(User user) {
+    private boolean isNotValidEnteredData(User user) {
         return user.getUsername() == null
                 || user.getPassword() == null
                 || user.getUsername().length() == 0
