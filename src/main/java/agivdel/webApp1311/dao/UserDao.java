@@ -4,6 +4,7 @@ import agivdel.webApp1311.entities.Balance;
 import agivdel.webApp1311.entities.Payment;
 import agivdel.webApp1311.entities.User;
 
+import javax.naming.NameNotFoundException;
 import java.lang.String;
 import java.sql.*;
 import java.util.ArrayList;
@@ -19,16 +20,14 @@ public class UserDao {
     private static final String INSERT_ID_PAYMENT = "INSERT INTO payments (user_id, payment) VALUES (?,?)";
     private static final String SELECT_ALL_FROM_PAYMENTS_WHERE_USER_ID = "SELECT * FROM payments WHERE user_id=?";
 
-    public int insertUser(Connection con, String username) throws Exception {
-        // Перед возвратом Connection con в пул все Statement'ы и ResultSet'ы,
-        // полученные с помощью этого соединения, автоматически закрываются в соответствии с API
+    public int insertUser(Connection con, String username) throws SQLException {
         PreparedStatement pstUsers = con.prepareStatement(INSERT_USERNAME, new String[]{"id"});
         pstUsers.setString(1, username);
         pstUsers.executeUpdate();
 
         ResultSet resultSet = pstUsers.getGeneratedKeys();
         if (!resultSet.next()) {
-            throw new Exception("database access error");
+            throw new SQLException("database access error");
         }
         return resultSet.getInt("id");
     }
@@ -40,13 +39,13 @@ public class UserDao {
         pstUsers.executeUpdate();
     }
 
-    public User selectUser(Connection con, String username) throws Exception {
+    public User selectUser(Connection con, String username) throws NameNotFoundException, SQLException {
         PreparedStatement pstUser = con.prepareStatement(SELECT_ID_PASSWORD_WHERE_USERNAME);
         pstUser.setString(1, username);
 
         ResultSet resultSetUser = pstUser.executeQuery();
         if (!resultSetUser.next()) {
-            throw new Exception("this username was not found");
+            throw new NameNotFoundException("username '" + username + "' was not found");
         }
         int userId = resultSetUser.getInt(1);
         String password = resultSetUser.getString(2);
@@ -67,25 +66,31 @@ public class UserDao {
         pstBalances.executeUpdate();
     }
 
-    public Balance selectBalance(Connection con, int userId) throws Exception {
+    public Balance selectBalance(Connection con, int userId) throws NameNotFoundException, SQLException {
         PreparedStatement pstBalance = con.prepareStatement(SELECT_BALANCE_WHERE_ID);
         pstBalance.setInt(1, userId);
 
         ResultSet resultSetBalance = pstBalance.executeQuery();
         if (!resultSetBalance.next()) {
-            throw new Exception("this userId was not found");
+            throw new NameNotFoundException("userId " + userId + " was not found");
         }
         return new Balance(userId, resultSetBalance.getLong(1));
     }
 
-    public void insertPayment(Connection con, int userId, long payment) throws SQLException {
-        PreparedStatement pstBalances = con.prepareStatement(INSERT_ID_PAYMENT);
-        pstBalances.setInt(1, userId);
-        pstBalances.setLong(2, payment);
-        pstBalances.executeUpdate();
+    public int insertPayment(Connection con, int userId, long payment) throws SQLException {
+        PreparedStatement pstPayments = con.prepareStatement(INSERT_ID_PAYMENT, new String[]{"id"});
+        pstPayments.setInt(1, userId);
+        pstPayments.setLong(2, payment);
+        pstPayments.executeUpdate();
+
+        ResultSet resultSet = pstPayments.getGeneratedKeys();
+        if (!resultSet.next()) {
+            throw new SQLException("database access error");
+        }
+        return resultSet.getInt("id");
     }
 
-    public List<Payment> selectPayments(Connection con, int userId) throws Exception {
+    public List<Payment> selectPayments(Connection con, int userId) throws SQLException {
         PreparedStatement pstPayment = con.prepareStatement(SELECT_ALL_FROM_PAYMENTS_WHERE_USER_ID);
         pstPayment.setInt(1, userId);
 
