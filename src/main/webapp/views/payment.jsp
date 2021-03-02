@@ -5,8 +5,8 @@
     <title>Title</title>
 </head>
 <body>
-<p><strong>username:</strong>${user.username}</p>
-<p><strong>balance:</strong>${user.balance}</p>
+<p><strong>username:</strong>${username}</p>
+<p><strong>balance:</strong>${balance}</p>
 <form action="/webApp1311_war/payment-servlet" method="post">
     <button>pay</button>
 </form>
