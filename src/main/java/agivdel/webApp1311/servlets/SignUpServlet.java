@@ -12,9 +12,9 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
-@WebServlet(urlPatterns = {"/signup", "/signup-servlet"})
+//@WebServlet(urlPatterns = {"/signup", "/signup-servlet"})
 public class SignUpServlet extends HttpServlet {
-    private final String forwardAddress = "views/sign-up.jsp";
+    private final String forwardAddress = "/views/sign-up.jsp";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -33,6 +33,6 @@ public class SignUpServlet extends HttpServlet {
 
         HttpSession session = req.getSession();
         session.setAttribute("authenticatedUser", user);
-        resp.sendRedirect(req.getContextPath() + "payment.jsp");
+        resp.sendRedirect(req.getContextPath() + "/payment.jsp");
     }
 }
