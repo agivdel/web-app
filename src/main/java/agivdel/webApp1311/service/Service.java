@@ -15,24 +15,37 @@ public class Service {
 
 
 
-    public boolean authentication(String username, String password) {
+    public boolean authentication(String username, String password) throws Exception {
         //есть в базе такие же логин и соленый пароль?
         User storedUser = findUser(username);
         return comparePasswords(password, storedUser.getPassword());
     }
 
-    public boolean isUserExists(String username) {
+    public boolean isUserExists(String username) throws Exception {
         //есть в базе такой же логин?
         User storedUser = findUser(username);
         return storedUser != null;
     }
 
     public void signUp(String username, String password) {
+        UserDao userDao = new UserDao();
+
+
+        userDao.insertUser(con, user);
+        userDao.insertBalance(con, user.getId(), startBalance());
+        userDao.updatePassword(con, user.getId(), saltPassword(user));
 
     }
 
-    public User findUser(String username) {
-        return new User();
+    public User findUser(String username) throws Exception {
+        UserDao userDao = new UserDao();
+        return doTransaction(con -> {
+            User storedUser = null;
+            storedUser = userDao.selectUser(con, username);
+            Long balance = userDao.selectBalance(con, storedUser.getId());
+            storedUser.setBalance(balance);
+            return storedUser;
+        });
     }
 
     public long pay(int userId) {
@@ -40,7 +53,7 @@ public class Service {
     }
 
     interface Transaction<T> {
-        T run(Connection connection) throws Exception;
+        T run(Connection con) throws Exception;
     }
 
     private <T> T doTransaction(Transaction<T> transaction) throws Exception {
@@ -105,38 +118,6 @@ public class Service {
             pool.close(con);
         }
         return true;
-    }
-
-    public User findUser(User user) throws Exception {
-        UserDao userDao = new UserDao();
-        ConnectionPoolHikariCP pool = new ConnectionPoolHikariCP();
-        Connection con = pool.getConnection();
-        User storedUser = null;
-        try {
-            con.setAutoCommit(false);
-            storedUser = userDao.selectUser(con, user.getUsername());
-            Long balance = userDao.selectBalance(con, storedUser.getId());
-            storedUser.setBalance(balance);
-            con.commit();
-        } catch (SQLException ex) {
-            try {
-                con.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                throw new Exception("transaction rollback error");
-            }
-            throw new Exception("database access error");
-        } catch (Exception e) {
-            try {
-                con.rollback();
-            } catch (Exception ex) {
-                throw new Exception("transaction rollback error");
-            }
-            e.printStackTrace();
-        } finally {
-            pool.close(con);
-        }
-        return storedUser;
     }
 
     public User pay(User user) throws Exception {
