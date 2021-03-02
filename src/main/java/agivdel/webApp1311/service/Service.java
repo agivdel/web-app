@@ -31,6 +31,18 @@ public class Service {
         return storedUser != null;
     }
 
+    public void signUp(String username, String password) {
+
+    }
+
+    public User findUser(String username) {
+        return new User();
+    }
+
+    public long pay(int userId) {
+        return 0L;
+    }
+
     public boolean authentication(User user) throws Exception {
         User storedUser = findUser(user);
         return user.equals(storedUser) && comparePasswords(user, storedUser);
@@ -72,10 +84,6 @@ public class Service {
         return true;
     }
 
-    public User findUser(String username) {
-        return new User();
-    }
-
     public User findUser(User user) throws Exception {
         UserDao userDao = new UserDao();
         ConnectionPoolHikariCP pool = new ConnectionPoolHikariCP();
@@ -106,10 +114,6 @@ public class Service {
             pool.close(con);
         }
         return storedUser;
-    }
-
-    public long pay(int userId) {
-        return 0L;
     }
 
     public User pay(User user) throws Exception {
