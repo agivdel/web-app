@@ -30,9 +30,6 @@ public class Balance {
 
     @Override
     public String toString() {
-        return "Balance{" +
-                "id=" + id +
-                ", value=" + value +
-                '}';
+        return "Balance{user_id=" + id + ", " + value + " cents}";
     }
 }
