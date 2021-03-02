@@ -8,6 +8,10 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * The class contains methods for validating user data (name, password).
+ */
+
 public class Check {
     private final HttpServlet servlet;
     private final HttpServletRequest req;
