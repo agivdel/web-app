@@ -18,6 +18,10 @@ public class Service {
 
 
 
+    public boolean authentication2(String username, String password) {
+        //есть в базе такие логин и соленый пароль?
+        return true;
+    }
 
     public boolean authentication(User user) throws Exception {
         User storedUser = findUser(user);
