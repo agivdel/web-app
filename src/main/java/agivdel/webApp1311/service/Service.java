@@ -12,6 +12,13 @@ import java.util.Properties;
 
 public class Service {
 
+    interface Transaction<T> {
+        T run(Connection connection) throws Exception;
+    }
+
+
+
+
     public boolean authentication(User user) throws Exception {
         User storedUser = findUser(user);
         return user.equals(storedUser) && comparePasswords(user, storedUser);
