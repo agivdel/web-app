@@ -16,11 +16,13 @@ public class Check {
     private final HttpServlet servlet;
     private final HttpServletRequest req;
     private final HttpServletResponse resp;
+    private final String forwardAddress;
 
-    public Check(HttpServlet servlet, HttpServletRequest req, HttpServletResponse resp) {
+    public Check(HttpServlet servlet, HttpServletRequest req, HttpServletResponse resp, String forwardAddress) {
         this.servlet = servlet;
         this.req = req;
         this.resp = resp;
+        this.forwardAddress = forwardAddress;
     }
 
     public void userValid(String username, String password) throws ServletException, IOException {
@@ -71,6 +73,6 @@ public class Check {
     private void repeatLogIn(String username, String password, String errorMessage) throws ServletException, IOException {
         req.setAttribute("errorMassage", errorMessage);
         req.setAttribute("user", new User(username, password));
-        servlet.getServletContext().getRequestDispatcher("views/login.jsp").forward(req, resp);
+        servlet.getServletContext().getRequestDispatcher(forwardAddress).forward(req, resp);
     }
 }

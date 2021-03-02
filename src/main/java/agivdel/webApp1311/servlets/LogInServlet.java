@@ -28,7 +28,7 @@ public class LogInServlet extends HttpServlet {
         String username = req.getParameter("username");
         String password = req.getParameter("password");
 
-        Check check = new Check(this, req, resp);
+        Check check = new Check(this, req, resp, "views/login.jsp");
         check.userValid(username, password);
         check.userExist(username, password);
         User user = check.userAuthentication(username, password);
