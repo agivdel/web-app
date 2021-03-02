@@ -13,10 +13,6 @@ import java.util.Properties;
 
 public class Service {
 
-    interface Transaction<T> {
-        T run(Connection connection) throws Exception;
-    }
-
 
 
     public boolean authentication(String username, String password) {
@@ -41,6 +37,33 @@ public class Service {
 
     public long pay(int userId) {
         return 0L;
+    }
+
+    interface Transaction<T> {
+        T run(Connection connection) throws Exception;
+    }
+
+    private <T> T doTransaction(Transaction<T> transaction) throws Exception {
+        ConnectionPoolHikariCP pool = new ConnectionPoolHikariCP();//TODO
+        Connection con = pool.getConnection();
+        try {
+            con.setAutoCommit(false);
+            T result = transaction.run(con);
+            con.commit();
+            return result;
+        } catch (Exception e) {
+            Exception exception = new Exception("database access error");
+            e.printStackTrace();
+            try {
+                con.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+                exception.addSuppressed(ex);
+            }
+            throw exception;
+        } finally {
+            pool.close(con);
+        }
     }
 
     public boolean authentication(User user) throws Exception {
