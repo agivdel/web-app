@@ -29,8 +29,17 @@ public class LogInServlet extends HttpServlet {
         //передавать туда лоигн-пароль, принимать юзера или исключение
         String username = req.getParameter("username");
         String password = req.getParameter("password");
-        User newUser = new User(username, password);
 
+        User user = userCheck(req, resp, username, password);
+
+        //сохраняем информацию пользователя в сессию
+        HttpSession session = req.getSession();
+        session.setAttribute("authenticatedUser", user);
+        resp.sendRedirect(req.getContextPath() + "payment.jsp");
+    }
+
+    private User userCheck(HttpServletRequest req, HttpServletResponse resp, String username, String password) throws ServletException, IOException {
+        User newUser = new User(username, password);
         if (isNotValid(newUser)) {
             //если данные введены некорректно
             //пробрасываем вновь на страницу аутентификации
@@ -41,11 +50,10 @@ public class LogInServlet extends HttpServlet {
         //ищем пользователя в БД
         User user = null;
         try {
-            user = new Service().findUser(newUser);
             //если пользователя с таким именем нет в БД
             //пробрасываем вновь на страницу аутентификации
             //показываем ошибку ввода
-            if (user.getId() == 0) {
+            if (!new Service().isUserExists(username)) {
                 repeatLogIn(req, resp, newUser, "this username was not found");
             }
         } catch (Exception e) {
@@ -54,28 +62,20 @@ public class LogInServlet extends HttpServlet {
         }
         //если до сих пор ошибки не возникло,
         //данные введны корректно и пользователь есть в БД
-        //проверяем пароль
+        //проверяем пароль - при совпадении создаем новый объект User
         //если пароль не совпал,
         //пробрасываем вновь на страницу аутентификации
         try {
-            if (!new Service().authentication(user)) {
+            if (!new Service().authentication(username, password)) {
                 repeatLogIn(req, resp, newUser, "invalid username-password pair");
             }
+            user = new Service().findUser(username);
         } catch (Exception e) {
             repeatLogIn(req, resp, newUser, e.getMessage());
         }
         //если дошли сюда,
         //аутентификация прошла успешно,
-        //сохраняем информацию пользователя в сессию
-        HttpSession session = req.getSession();
-        session.setAttribute("authenticatedUser", user);
-        resp.sendRedirect(req.getContextPath() + "payment.jsp");
-    }
-
-    private void repeatLogIn(HttpServletRequest req, HttpServletResponse resp, User newUser, String errorMessage) throws ServletException, IOException {
-        req.setAttribute("errorMassage", errorMessage);
-        req.setAttribute("user", newUser);
-        this.getServletContext().getRequestDispatcher("views/login.jsp").forward(req, resp);
+        return user;
     }
 
     private boolean isNotValid(User user) {
@@ -83,5 +83,11 @@ public class LogInServlet extends HttpServlet {
                 || user.getPassword() == null
                 || user.getUsername().length() == 0
                 || user.getPassword().length() == 0;
+    }
+
+    private void repeatLogIn(HttpServletRequest req, HttpServletResponse resp, User newUser, String errorMessage) throws ServletException, IOException {
+        req.setAttribute("errorMassage", errorMessage);
+        req.setAttribute("user", newUser);
+        this.getServletContext().getRequestDispatcher("views/login.jsp").forward(req, resp);
     }
 }
