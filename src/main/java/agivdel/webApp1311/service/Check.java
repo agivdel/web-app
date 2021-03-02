@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * The class contains methods for validating user data (name, password).
+ * The class contains methods for validating the user data (name, password).
  */
 
 public class Check {
@@ -27,27 +27,27 @@ public class Check {
 
     public void userValid(String username, String password) throws ServletException, IOException {
         if (isNotValidEnteredData(username, password)) {
-            repeatLogIn(username, password, "enter not empty username and password");
+            repeat(username, password, "enter not empty username and password");
         }
     }
 
     public void userExist(String username, String password) throws ServletException, IOException {
         try {
             if (new Service().isUserExists(username)) {
-                repeatLogIn(username, password, "this name is already registered");
+                repeat(username, password, "this name is already registered");
             }
         } catch (Exception e) {
-            repeatLogIn(username, password, e.getMessage());
+            repeat(username, password, e.getMessage());
         }
     }
 
     public User userAuthentication(String username, String password) throws ServletException, IOException {
         try {
             if (!new Service().authentication(username, password)) {
-                repeatLogIn(username, password, "invalid username-password pair");
+                repeat(username, password, "invalid username-password pair");
             }
         } catch (Exception e) {
-            repeatLogIn(username, password, e.getMessage());
+            repeat(username, password, e.getMessage());
         }
         return new User(username, password);
     }
@@ -55,10 +55,10 @@ public class Check {
     public User userSignUp(String username, String password) throws ServletException, IOException {
         try {
             if (!new Service().signUp(username, password)) {
-                repeatLogIn(username, password, "registration error, please try again");
+                repeat(username, password, "registration error, please try again");
             }
         } catch (Exception e) {
-            repeatLogIn(username, password, e.getMessage());
+            repeat(username, password, e.getMessage());
         }
         return new User(username, password);
     }
@@ -70,7 +70,7 @@ public class Check {
                 || password.length() == 0;
     }
 
-    private void repeatLogIn(String username, String password, String errorMessage) throws ServletException, IOException {
+    private void repeat(String username, String password, String errorMessage) throws ServletException, IOException {
         req.setAttribute("errorMessage", errorMessage);
         req.setAttribute("user", new User(username, password));
         servlet.getServletContext().getRequestDispatcher(forwardAddress).forward(req, resp);
