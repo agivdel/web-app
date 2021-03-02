@@ -39,13 +39,13 @@ public class UserDao {
         pstUsers.executeUpdate();
     }
 
-    public User selectUser(Connection con, String username) throws SQLException {
+    public User selectUser(Connection con, String username) throws Exception {
         PreparedStatement pstUser = con.prepareStatement(SELECT_ID_PASSWORD_WHERE_USERNAME);
         pstUser.setString(1, username);
 
         ResultSet resultSetUser = pstUser.executeQuery();
         if (!resultSetUser.next()) {
-            return new User();//возврат user c id=0
+            throw new Exception("this username was not found");
         }
         int userId = resultSetUser.getInt(1);
         String password = resultSetUser.getString(2);
