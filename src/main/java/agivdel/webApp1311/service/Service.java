@@ -18,8 +18,10 @@ public class Service {
 
 
 
-    public boolean authentication2(String username, String password) {
+    public boolean authentication(String username, String password) {
         //есть в базе такие логин и соленый пароль?
+        User user = findUser(username);
+        String saltedHash = saltPassword(password);
         return true;
     }
 
@@ -30,6 +32,11 @@ public class Service {
 
     public boolean isUserExists(User user) throws Exception {
         User storedUser = findUser(user);
+        return storedUser != null;
+    }
+
+    public boolean isUserExists(String username) throws Exception {
+        User storedUser = findUser(username);
         return storedUser != null;
     }
 
@@ -62,6 +69,10 @@ public class Service {
             pool.close(con);
         }
         return true;
+    }
+
+    public User findUser(String username) {
+        return new User();
     }
 
     public User findUser(User user) throws Exception {
@@ -140,6 +151,15 @@ public class Service {
             System.err.println("failed to hash the password. Re-enter the data for registration");
         }
         return false;
+    }
+
+    private String saltPassword(String password) {
+        try {
+            return PBKDF2.getSaltedHash(password);
+        } catch (Exception e) {
+            e.printStackTrace();//TODO
+        }
+        return password;
     }
 
     private String saltPassword(User user) {
