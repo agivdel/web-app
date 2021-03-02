@@ -13,8 +13,6 @@ import java.util.Properties;
 
 public class Service {
 
-
-
     public boolean authentication(String username, String password) throws Exception {
         //есть в базе такие же логин и соленый пароль?
         User storedUser = findUser(username);
@@ -49,8 +47,19 @@ public class Service {
         });
     }
 
-    public long pay(int userId) {
-        return 0L;
+    public long pay(String username) throws Exception {//TODO заменить на int userId?
+        UserDao userDao = new UserDao();
+        return doTransaction(con -> {
+            User storedUser = userDao.selectUser(con, username);
+            Long balance = userDao.selectBalance(con, storedUser.getId());
+            long subtotal = balance - paymentUnit();
+            if (subtotal <= lowerLimit()) {
+                throw  new Exception("There are not enough funds on your account");
+            }
+            userDao.updateBalance(con, storedUser.getId(), subtotal);
+            userDao.insertPayment(con, storedUser.getId(), paymentUnit());
+            return subtotal;
+        });
     }
 
     interface Transaction<T> {
@@ -80,55 +89,9 @@ public class Service {
         }
     }
 
-    public User pay(User user) throws Exception {
-        UserDao userDao = new UserDao();
-        ConnectionPoolHikariCP pool = new ConnectionPoolHikariCP();
-        Connection con = pool.getConnection();
-        User storedUser = null;
-        try {
-            con.setAutoCommit(false);
-            storedUser = userDao.selectUser(con, user.getUsername());
-            Long balance = userDao.selectBalance(con, storedUser.getId());
-            long subtotal = balance - paymentUnit();
-            if (subtotal <= lowerLimit()) {
-                throw  new Exception("There are not enough funds on your account");
-            }
-            userDao.updateBalance(con, storedUser.getId(), subtotal);
-            userDao.insertPayment(con, storedUser.getId(), paymentUnit());
-            con.commit();
-        } catch (SQLException ex) {
-            try {
-                con.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                throw new Exception("transaction rollback error");
-            }
-            throw new Exception("database access error");
-        } catch (Exception e) {
-            try {
-                con.rollback();
-            } catch (Exception ex) {
-                throw new Exception("transaction rollback error");
-            }
-            e.printStackTrace();
-        } finally {
-            pool.close(con);
-        }
-        return storedUser;
-    }
-
     private boolean comparePasswords(String password, String storedPassword) {
         try {
             return PBKDF2.compare(password, storedPassword);
-        } catch (Exception e) {
-            System.err.println("failed to hash the password. Re-enter the data for registration");
-        }
-        return false;
-    }
-
-    private boolean comparePasswords(User user, User storedUser) {
-        try {
-            return PBKDF2.compare(user.getPassword(), storedUser.getPassword());
         } catch (Exception e) {
             System.err.println("failed to hash the password. Re-enter the data for registration");
         }
@@ -139,18 +102,10 @@ public class Service {
         try {
             return PBKDF2.getSaltedHash(password);
         } catch (Exception e) {
+            System.err.println("failed to hash the password. Re-enter the data for registration");
             e.printStackTrace();//TODO
         }
         return password;
-    }
-
-    private String saltPassword(User user) {
-        try {
-            return PBKDF2.getSaltedHash(user.getPassword());
-        } catch (Exception e) {
-            System.err.println("failed to hash the password. Re-enter the data for registration");
-        }
-        return user.getPassword();
     }
 
     /**
