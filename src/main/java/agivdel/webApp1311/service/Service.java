@@ -24,11 +24,10 @@ public class Service {
 
     public boolean signUp(String username, String password) throws Exception {
         UserDao userDao = new UserDao();
-        User newUser = new User(username, password);
         return doTransaction(con -> {
-            userDao.insertUser(con, newUser);//TODO передаем User, а используем только username!
-            userDao.insertBalance(con, newUser.getId(), startBalance());
-            userDao.updatePassword(con, newUser.getId(), saltPassword(password));
+            int userId = userDao.insertUser(con, username);
+            userDao.insertBalance(con, userId, startBalance());
+            userDao.updatePassword(con, userId, saltPassword(password));
             return null;
         });
     }

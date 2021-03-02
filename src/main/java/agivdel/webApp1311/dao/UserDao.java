@@ -18,18 +18,18 @@ public class UserDao {
     private static final String INSERT_ID_PAYMENT = "INSERT INTO payments (user_id, payment) VALUES (?,?)";
     private static final String SELECT_ALL_FROM_PAYMENTS_WHERE_USER_ID = "SELECT * FROM payments WHERE user_id=?";
 
-    public void insertUser(Connection con, User user) throws Exception {
+    public int insertUser(Connection con, String username) throws Exception {
         // Перед возвратом Connection con в пул все Statement'ы и ResultSet'ы,
         // полученные с помощью этого соединения, автоматически закрываются в соответствии с API
         PreparedStatement pstUsers = con.prepareStatement(INSERT_USERNAME, new String[]{"id"});
-        pstUsers.setString(1, user.getUsername());
+        pstUsers.setString(1, username);
         pstUsers.executeUpdate();
 
         ResultSet resultSet = pstUsers.getGeneratedKeys();
         if (!resultSet.next()) {
             throw new Exception("database access error");
         }
-        user.setId(resultSet.getInt("id"));
+        return resultSet.getInt("id");
     }
 
     public void updatePassword(Connection con, int userId, String password) throws SQLException {
