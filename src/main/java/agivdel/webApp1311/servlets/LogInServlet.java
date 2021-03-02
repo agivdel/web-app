@@ -13,6 +13,7 @@ import java.io.IOException;
 
 @WebServlet(urlPatterns = {"/login", "/login-servlet"})
 public class LogInServlet extends HttpServlet {
+    private final String forwardAddress = "views/login.jsp";
     //проверяет login и password
     //при успешной аутентификации выдает токен
     //перенаправляет на сервлет payment
@@ -20,7 +21,7 @@ public class LogInServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        this.getServletContext().getRequestDispatcher("views/login.jsp").forward(req, resp);
+        this.getServletContext().getRequestDispatcher(forwardAddress).forward(req, resp);
     }
 
     @Override
@@ -28,7 +29,7 @@ public class LogInServlet extends HttpServlet {
         String username = req.getParameter("username");
         String password = req.getParameter("password");
 
-        Check check = new Check(this, req, resp, "views/login.jsp");
+        Check check = new Check(this, req, resp, forwardAddress);
         check.userValid(username, password);
         check.userExist(username, password);
         User user = check.userAuthentication(username, password);

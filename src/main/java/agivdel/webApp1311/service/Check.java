@@ -71,7 +71,7 @@ public class Check {
     }
 
     private void repeatLogIn(String username, String password, String errorMessage) throws ServletException, IOException {
-        req.setAttribute("errorMassage", errorMessage);
+        req.setAttribute("errorMessage", errorMessage);
         req.setAttribute("user", new User(username, password));
         servlet.getServletContext().getRequestDispatcher(forwardAddress).forward(req, resp);
     }

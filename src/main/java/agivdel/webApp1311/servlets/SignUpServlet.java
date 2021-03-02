@@ -14,10 +14,11 @@ import java.io.IOException;
 
 @WebServlet(urlPatterns = {"/signup", "/signup-servlet"})
 public class SignUpServlet extends HttpServlet {
+    private final String forwardAddress = "views/sign-up.jsp";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        this.getServletContext().getRequestDispatcher("views/sign-up.jsp").forward(req, resp);
+        this.getServletContext().getRequestDispatcher(forwardAddress).forward(req, resp);
     }
 
     @Override
@@ -25,7 +26,7 @@ public class SignUpServlet extends HttpServlet {
         String username = req.getParameter("username");
         String password = req.getParameter("password");
 
-        Check check = new Check(this, req, resp, "views/sign-up.jsp");
+        Check check = new Check(this, req, resp, forwardAddress);
         check.userValid(username, password);
         check.userExist(username, password);
         User user = check.userSignUp(username, password);
