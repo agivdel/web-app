@@ -73,7 +73,7 @@ public class Service {
     }
 
     private <T> T doTransaction(Transaction<T> transaction) throws Exception {
-        ConnectionPoolHikariCP pool = new ConnectionPoolHikariCP();//TODO
+        ConnectionPoolHikariCP pool = new ConnectionPoolHikariCP();//TODO проблемы с пулом
         Connection con = pool.getConnection();
         try {
             con.setAutoCommit(false);

@@ -1,5 +1,6 @@
 package agivdel.webApp1311.service;
 
+import agivdel.webApp1311.entities.Balance;
 import agivdel.webApp1311.entities.User;
 import agivdel.webApp1311.utils.ConnectionCreator;
 import org.junit.jupiter.api.AfterEach;
@@ -47,7 +48,8 @@ public class ServiceTest {
         String password = "Bob123";
         service.signUp(username, password);
         User storedUser = service.findUser(username);
-        assertEquals(800, storedUser.getBalance());
+        Balance storedBalance = service.findBalance(storedUser.getId());
+        assertEquals(800, storedBalance.getValue());
     }
 
     @Test
@@ -100,15 +102,15 @@ public class ServiceTest {
         String username = "Bob";
         String password = "Bob123";
         service.signUp(username, password);
-        service.pay(username);
-        User storedUser = service.findUser(username);
-        Long storedBalance = storedUser.getBalance();
-        assertEquals(690, storedBalance);
+        int userId = service.findUser(username).getId();
 
         service.pay(username);
-        storedUser = service.findUser(username);
-        storedBalance = storedUser.getBalance();
-        assertEquals(580, storedBalance);
+        Balance storedBalance = service.findBalance(userId);
+        assertEquals(690, storedBalance.getValue());
+
+        service.pay(username);
+        storedBalance = service.findBalance(userId);
+        assertEquals(580, storedBalance.getValue());
     }
 
     @Test
@@ -116,6 +118,8 @@ public class ServiceTest {
         String username = "Bob";
         String password = "Bob123";
         service.signUp(username, password);
+        User storedUser = service.findUser(username);
+
         long lowerLimit = 0;
         long startBalance = 800;
         long paymentUnit = 110;
@@ -125,7 +129,7 @@ public class ServiceTest {
             x--;
         }
         long balance = (startBalance - lowerLimit) % paymentUnit;
-        Long storedBalance = service.findUser(username).getBalance();
+        long storedBalance = service.findBalance(storedUser.getId()).getValue();
         assertEquals(balance, storedBalance);
     }
 }
