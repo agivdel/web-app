@@ -1,5 +1,6 @@
 package agivdel.webApp1311.service;
 
+import agivdel.webApp1311.entities.Balance;
 import agivdel.webApp1311.utils.ConnectionPoolHikariCP;
 import agivdel.webApp1311.password.PBKDF2;
 import agivdel.webApp1311.utils.PropertiesReader;
@@ -37,9 +38,16 @@ public class Service {
         return doTransaction(con -> {
             User storedUser = null;
             storedUser = userDao.selectUser(con, username);
-            Long balance = userDao.selectBalance(con, storedUser.getId());
-            storedUser.setBalance(balance);
             return storedUser;
+        });
+    }
+
+    public Balance findBalance(int userId) throws Exception {
+        UserDao userDao = new UserDao();
+        return doTransaction(con -> {
+            Balance storedBalance = null;
+            storedBalance = userDao.selectBalance(con, userId);
+            return storedBalance;
         });
     }
 
@@ -48,8 +56,9 @@ public class Service {
         return doTransaction(con -> {
             User storedUser = null;
             storedUser = userDao.selectUser(con, username);
-            Long balance = userDao.selectBalance(con, storedUser.getId());
-            long subtotal = balance - paymentUnit();
+            Balance storedBalance = null;
+            storedBalance = userDao.selectBalance(con, storedUser.getId());
+            long subtotal = storedBalance.getValue() - paymentUnit();
             if (subtotal <= lowerLimit()) {
                 throw  new Exception("There are not enough funds on your account");
             }

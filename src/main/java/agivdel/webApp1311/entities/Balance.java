@@ -1,23 +1,23 @@
 package agivdel.webApp1311.entities;
 
 public class Balance {
-    private int id;
+    private int userId;
     private long value;
 
     public Balance() {
     }
 
     public Balance(int id, long value) {
-        this.id = id;
+        this.userId = id;
         this.value = value;
     }
 
-    public int getId() {
-        return id;
+    public int getUserId() {
+        return userId;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 
     public long getValue() {
@@ -30,6 +30,6 @@ public class Balance {
 
     @Override
     public String toString() {
-        return "Balance{user_id=" + id + ", " + value + " cents}";
+        return "Balance{user_id=" + userId + ", " + value + " cents}";
     }
 }

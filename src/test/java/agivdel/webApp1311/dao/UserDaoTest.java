@@ -59,7 +59,7 @@ public class UserDaoTest {
         userDao.insertUser(con, user.getUsername());
         userDao.insertBalance(con, user.getId(), 800);
 
-        Long storedBalance = userDao.selectBalance(con, user.getId());
+        Long storedBalance = userDao.selectBalance(con, user.getId()).getValue();
         assertEquals(800, storedBalance);
     }
 

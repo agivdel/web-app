@@ -1,5 +1,6 @@
 package agivdel.webApp1311.dao;
 
+import agivdel.webApp1311.entities.Balance;
 import agivdel.webApp1311.entities.Payment;
 import agivdel.webApp1311.entities.User;
 
@@ -66,7 +67,7 @@ public class UserDao {
         pstBalances.executeUpdate();
     }
 
-    public Long selectBalance(Connection con, int userId) throws Exception {
+    public Balance selectBalance(Connection con, int userId) throws Exception {
         PreparedStatement pstBalance = con.prepareStatement(SELECT_BALANCE_WHERE_ID);
         pstBalance.setInt(1, userId);
 
@@ -74,7 +75,7 @@ public class UserDao {
         if (!resultSetBalance.next()) {
             throw new Exception("this userId was not found");
         }
-        return resultSetBalance.getLong(1);
+        return new Balance(userId, resultSetBalance.getLong(1));
     }
 
     public void insertPayment(Connection con, int userId, long payment) throws SQLException {

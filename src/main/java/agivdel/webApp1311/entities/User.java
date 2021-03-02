@@ -14,14 +14,14 @@ public class User {
     public User(String username, String password) {
         this.username = username;
         this.password = password;
-        this.balance = null;
+//        this.balance = null;
     }
 
     public User(int id, String username, String password) {
         this.id = id;
         this.username = username;
         this.password = password;
-        this.balance = null;
+//        this.balance = null;
     }
 
     public int getId() {
@@ -48,13 +48,13 @@ public class User {
         this.password = password;
     }
 
-    public long getBalance() {
-        return balance;
-    }
+//    public long getBalance() {
+//        return balance;
+//    }
 
-    public void setBalance(long balance) {
-        this.balance = balance;
-    }
+//    public void setBalance(long balance) {
+//        this.balance = balance;
+//    }
 
     @Override
     public boolean equals(Object o) {
@@ -74,7 +74,6 @@ public class User {
         return "User{" +
                 "id=" + id +
                 ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", balance=" + balance + " cents}";
+                ", password='" + password + "}";
     }
 }
