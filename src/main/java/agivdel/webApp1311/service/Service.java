@@ -27,14 +27,15 @@ public class Service {
         return storedUser != null;
     }
 
-    public void signUp(String username, String password) {
+    public boolean signUp(String username, String password) throws Exception {
         UserDao userDao = new UserDao();
-
-
-        userDao.insertUser(con, user);
-        userDao.insertBalance(con, user.getId(), startBalance());
-        userDao.updatePassword(con, user.getId(), saltPassword(user));
-
+        User newUser = new User(username, password);
+        return doTransaction(con -> {
+            userDao.insertUser(con, newUser);//TODO передаем User, а используем только username!
+            userDao.insertBalance(con, newUser.getId(), startBalance());
+            userDao.updatePassword(con, newUser.getId(), saltPassword(password));
+            return null;
+        });
     }
 
     public User findUser(String username) throws Exception {
@@ -77,47 +78,6 @@ public class Service {
         } finally {
             pool.close(con);
         }
-    }
-
-    public boolean authentication(User user) throws Exception {
-        User storedUser = findUser(user);
-        return user.equals(storedUser) && comparePasswords(user, storedUser);
-    }
-
-    public boolean isUserExists(User user) throws Exception {
-        User storedUser = findUser(user);
-        return storedUser != null;
-    }
-
-    public boolean signUp(User user) throws Exception {
-        UserDao userDao = new UserDao();
-        ConnectionPoolHikariCP pool = new ConnectionPoolHikariCP();
-        Connection con = pool.getConnection();
-        try {
-            con.setAutoCommit(false);
-            userDao.insertUser(con, user);
-            userDao.insertBalance(con, user.getId(), startBalance());
-            userDao.updatePassword(con, user.getId(), saltPassword(user));
-            con.commit();
-        } catch (SQLException ex) {
-            try {
-                con.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                throw new Exception("transaction rollback error");
-            }
-            throw new Exception("database access error");
-        } catch (Exception e) {
-            try {
-                con.rollback();
-            } catch (Exception ex) {
-                throw new Exception("transaction rollback error");
-            }
-            e.printStackTrace();
-        } finally {
-            pool.close(con);
-        }
-        return true;
     }
 
     public User pay(User user) throws Exception {

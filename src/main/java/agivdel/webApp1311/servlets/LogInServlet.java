@@ -25,6 +25,8 @@ public class LogInServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        //содержимое метода перенести в отдельный сервис,
+        //передавать туда лоигн-пароль, принимать юзера или исключение
         String username = req.getParameter("username");
         String password = req.getParameter("password");
         User newUser = new User(username, password);
