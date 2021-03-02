@@ -36,83 +36,96 @@ public class ServiceTest {
 
     @Test
     public void SignUp_CorrectReturnTrue() throws Exception {
-        User user = new User("Bob", "Bob123");
-        assertTrue(service.signUp(user.getUsername(), user.getPassword()));
+        String username = "Bob";
+        String password = "Bob123";
+        assertTrue(service.signUp(username, password));
     }
 
     @Test
     public void SignUp_CorrectStartBalance() throws Exception {
-        User user = new User("Bob", "Bob123");
-        service.signUp(user.getUsername(), user.getPassword());
-        User storedUser = service.findUser(user.getUsername());
+        String username = "Bob";
+        String password = "Bob123";
+        service.signUp(username, password);
+        User storedUser = service.findUser(username);
         assertEquals(800, storedUser.getBalance());
     }
 
     @Test
     public void SignUp_CorrectSetSaltedHashPassword() throws Exception {
-        User user = new User("Bob", "Bob123");
-        service.signUp(user.getUsername(), user.getPassword());
-        User storedUser = service.findUser(user.getUsername());
+        String username = "Bob";
+        String password = "Bob123";
+        service.signUp(username, password);
+        User storedUser = service.findUser(username);
         assertNotEquals("Bob123", storedUser.getPassword());
     }
 
     @Test
     public void findUser_FromEmptyDBReturnsNull() throws Exception {
-        User user = new User("Arkady", "ArkadyTheGreat");
-        User storedUser = service.findUser(user.getUsername());
+        String username = "Arkady";
+        String password = "ArkadyTheGreat3";
+        User storedUser = service.findUser(username);
         assertNull(storedUser.getUsername());
         assertEquals(0, storedUser.getId());
     }
 
     @Test
     public void findUser_WhenUserExistsInDB() throws Exception {
-        User user = new User("Arkady", "ArkadyTheGreat");
-        assertTrue(service.signUp(user.getUsername(), user.getPassword()));
-        assertEquals(user, service.findUser(user.getUsername()));
+        String username = "Arkady";
+        String password = "ArkadyTheGreat3";
+        User user = new User(username, password);
+        service.signUp(username, password);
+        User storedUser = service.findUser(username);
+        assertEquals(user, storedUser);
     }
 
     @Test
     public void authentication_WithTheSameUserReturnsTrue() throws Exception {
-        User user = new User("Shchekn", "SuperDog");
-        assertTrue(service.signUp(user.getUsername(), user.getPassword()));
-        assertTrue(service.authentication(user.getUsername(), user.getPassword()));
+        String username = "Shchekn";
+        String password = "SuperDog";
+        assertTrue(service.signUp(username, password));
+        assertTrue(service.authentication(username, password));
     }
 
     @Test
     public void authentication_WithDifferentUsersReturnsFalse() throws Exception {
-        User user = new User("Shchekn", "SuperDog");
-        User user2 = new User("Schekn", "SuperDog222");
-        assertTrue(service.signUp(user.getUsername(), user.getPassword()));
-        assertFalse(service.authentication(user2.getUsername(), user2.getPassword()));
+        String username = "Shchekn";
+        String password = "SuperDog";
+        assertTrue(service.signUp(username, password));
+        String otherPassword = "SuperDog222";
+        assertFalse(service.authentication(username, otherPassword));
     }
 
     @Test
     public void pay_CorrectPayment() throws Exception {
-        User user = new User("Bob", "Bob123");
-        service.signUp(user.getUsername(), user.getPassword());
-        service.pay(user.getUsername());
-        Long storedBalance = service.findUser(user.getUsername()).getBalance();
+        String username = "Bob";
+        String password = "Bob123";
+        service.signUp(username, password);
+        service.pay(username);
+        User storedUser = service.findUser(username);
+        Long storedBalance = storedUser.getBalance();
         assertEquals(690, storedBalance);
 
-        service.pay(user.getUsername());
-        Long storedBalance2 = service.findUser(user.getUsername()).getBalance();
-        assertEquals(580, storedBalance2);
+        service.pay(username);
+        storedUser = service.findUser(username);
+        storedBalance = storedUser.getBalance();
+        assertEquals(580, storedBalance);
     }
 
     @Test
     public void pay_BalanceCannotBeLessThanLowerLimit() throws Exception {
-        User user = new User("Bob", "Bob123");
-        service.signUp(user.getUsername(), user.getPassword());
+        String username = "Bob";
+        String password = "Bob123";
+        service.signUp(username, password);
         long lowerLimit = 0;
         long startBalance = 800;
         long paymentUnit = 110;
         int x = 10;
         while (x >= 0) {
-            service.pay(user.getUsername());
+            service.pay(username);
             x--;
         }
         long balance = (startBalance - lowerLimit) % paymentUnit;
-        Long storedBalance = service.findUser(user.getUsername()).getBalance();
+        Long storedBalance = service.findUser(username).getBalance();
         assertEquals(balance, storedBalance);
     }
 }

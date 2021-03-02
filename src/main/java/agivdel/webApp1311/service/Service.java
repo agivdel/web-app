@@ -22,7 +22,7 @@ public class Service {
         return storedUser != null;
     }
 
-    public boolean signUp(String username, String password) throws Exception {
+    public boolean signUp(String username, String password) throws Exception {//TODO возвращать id?
         UserDao userDao = new UserDao();
         return doTransaction(con -> {
             int userId = userDao.insertUser(con, username);
