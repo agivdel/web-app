@@ -12,9 +12,9 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
-//@WebServlet(urlPatterns = {"/signup", "/signup-servlet"})
+@WebServlet(urlPatterns = {"/signup", "/signup-servlet"})
 public class SignUpServlet extends HttpServlet {
-    private final String forwardAddress = "/views/sign-up.jsp";
+    private final String forwardAddress = "/signup.jsp";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -28,7 +28,7 @@ public class SignUpServlet extends HttpServlet {
 
         Check check = new Check(this, req, resp, forwardAddress);
         check.userValid(username, password);
-        check.userExist(username, password);
+        check.userNotExist(username, password);
         User user = check.userSignUp(username, password);
 
         HttpSession session = req.getSession();

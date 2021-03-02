@@ -31,10 +31,20 @@ public class Check {
         }
     }
 
-    public void userExist(String username, String password) throws ServletException, IOException {
+    public void userNotExist(String username, String password) throws ServletException, IOException {
         try {
             if (new Service().isUserExists(username)) {
                 repeat(username, password, "this name is already registered");
+            }
+        } catch (Exception e) {
+            repeat(username, password, e.getMessage());
+        }
+    }
+
+    public void userExist(String username, String password) throws ServletException, IOException {
+        try {
+            if (!new Service().isUserExists(username)) {
+                repeat(username, password, "this username was not found");
             }
         } catch (Exception e) {
             repeat(username, password, e.getMessage());

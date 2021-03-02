@@ -12,9 +12,9 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
-//@WebServlet(urlPatterns = {"/login", "/login-servlet"})
+@WebServlet(urlPatterns = {"/login", "/login-servlet"})
 public class LogInServlet extends HttpServlet {
-    private final String forwardAddress = "/views/login.jsp";
+    private final String forwardAddress = "/index.jsp";
     //проверяет login и password
     //при успешной аутентификации выдает токен
     //перенаправляет на сервлет payment
