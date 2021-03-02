@@ -35,10 +35,21 @@ public class Check {
         }
     }
 
-    public User password(String username, String password) throws ServletException, IOException {
+    public User userAuthentication(String username, String password) throws ServletException, IOException {
         try {
             if (!new Service().authentication(username, password)) {
                 repeatLogIn(username, password, "invalid username-password pair");
+            }
+        } catch (Exception e) {
+            repeatLogIn(username, password, e.getMessage());
+        }
+        return new User(username, password);
+    }
+
+    public User userSignUp(String username, String password) throws ServletException, IOException {
+        try {
+            if (!new Service().signUp(username, password)) {
+                repeatLogIn(username, password, "registration error, please try again");
             }
         } catch (Exception e) {
             repeatLogIn(username, password, e.getMessage());

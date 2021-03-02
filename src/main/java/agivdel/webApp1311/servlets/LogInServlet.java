@@ -1,7 +1,6 @@
 package agivdel.webApp1311.servlets;
 
 import agivdel.webApp1311.service.Check;
-import agivdel.webApp1311.service.Service;
 import agivdel.webApp1311.entities.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -32,7 +31,7 @@ public class LogInServlet extends HttpServlet {
         Check check = new Check(this, req, resp);
         check.userValid(username, password);
         check.userExist(username, password);
-        User user = check.password(username, password);
+        User user = check.userAuthentication(username, password);
 
         HttpSession session = req.getSession();
         session.setAttribute("authenticatedUser", user);
