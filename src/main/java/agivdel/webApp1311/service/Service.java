@@ -41,6 +41,11 @@ public class Service {
             }
             throw new Exception("database access error");
         } catch (Exception e) {
+            try {
+                con.rollback();
+            } catch (Exception ex) {
+                throw new Exception("transaction rollback error");
+            }
             e.printStackTrace();
         } finally {
             pool.close(con);
@@ -64,10 +69,15 @@ public class Service {
                 con.rollback();
             } catch (SQLException e) {
                 e.printStackTrace();
-                throw new Exception("transaction rollback error ");
+                throw new Exception("transaction rollback error");
             }
             throw new Exception("database access error");
         } catch (Exception e) {
+            try {
+                con.rollback();
+            } catch (Exception ex) {
+                throw new Exception("transaction rollback error");
+            }
             e.printStackTrace();
         } finally {
             pool.close(con);
@@ -96,10 +106,15 @@ public class Service {
                 con.rollback();
             } catch (SQLException e) {
                 e.printStackTrace();
-                throw new Exception("transaction rollback error ");
+                throw new Exception("transaction rollback error");
             }
             throw new Exception("database access error");
         } catch (Exception e) {
+            try {
+                con.rollback();
+            } catch (Exception ex) {
+                throw new Exception("transaction rollback error");
+            }
             e.printStackTrace();
         } finally {
             pool.close(con);
