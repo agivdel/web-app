@@ -7,7 +7,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.naming.NameNotFoundException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -59,14 +58,9 @@ public class UserDaoTest {
     }
 
     @Test
-    void selectUser_exception_when_user_not_found_in_database() {
+    void selectUser_exception_when_user_not_found_in_database() throws SQLException {
         String username = "Bob";
-        Exception exception = assertThrows(NameNotFoundException.class, () -> {
-            userDao.selectUser(con, username);
-            throw new NameNotFoundException();
-        });
-
-        assertEquals("username '" + username + "' was not found", exception.getMessage());
+        assertNull(userDao.selectUser(con, username));
     }
 
     @Test
@@ -80,14 +74,9 @@ public class UserDaoTest {
     }
 
     @Test
-    void selectBalance_exception_when_userId_not_found_in_database() {
+    void selectBalance_exception_when_userId_not_found_in_database() throws SQLException {
         int userId = 1;
-        Exception exception = assertThrows(NameNotFoundException.class, () -> {
-            userDao.selectBalance(con, userId);
-            throw new NameNotFoundException();
-        });
-
-        assertEquals("userId " + userId + " was not found", exception.getMessage());
+        assertNull(userDao.selectBalance(con, userId));
     }
 
     @Test
