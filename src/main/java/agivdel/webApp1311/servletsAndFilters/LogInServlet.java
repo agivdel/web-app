@@ -1,4 +1,4 @@
-package agivdel.webApp1311.servlets;
+package agivdel.webApp1311.servletsAndFilters;
 
 import agivdel.webApp1311.service.ServletUtil;
 import agivdel.webApp1311.entities.User;
@@ -14,7 +14,7 @@ import java.io.IOException;
 public class LogInServlet extends HttpServlet {
     private final String addressIfError = "/index.jsp";
     private final String addressIfSuccess = "/payment.jsp";
-    //при успешной аутентификации выдает токен
+    //при успешной аутентификации имя сохраняется в куки, пользователь - в сессии
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -30,6 +30,6 @@ public class LogInServlet extends HttpServlet {
         servletUtil.valid(username, password);
         servletUtil.isExists(username, password);
         User user = servletUtil.authentication(username, password);
-        servletUtil.makeSessionAndGo(username, user);
+        servletUtil.saveUserInSessionAndGo(username, user);
     }
 }
