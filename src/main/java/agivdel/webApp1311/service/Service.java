@@ -65,7 +65,6 @@ public class Service {
     }
 
     private <T> T doTransaction(Transaction<T> transaction) throws Exception {
-//        ConnectionPoolHikariCP pool = new ConnectionPoolHikariCP();//TODO проблемы с пулом
         ConnectionPoolTomcat pool = new ConnectionPoolTomcat();//TODO проблемы с new InitialContext()
         Connection con = pool.getConnection();
 //        ConnectionCreator creator = new ConnectionCreator();//
