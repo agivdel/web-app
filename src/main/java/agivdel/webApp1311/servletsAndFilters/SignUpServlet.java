@@ -1,4 +1,4 @@
-package agivdel.webApp1311.servlets;
+package agivdel.webApp1311.servletsAndFilters;
 
 import agivdel.webApp1311.service.ServletUtil;
 import agivdel.webApp1311.entities.User;
@@ -30,6 +30,6 @@ public class SignUpServlet extends HttpServlet {
         servletUtil.valid(username, password);
         servletUtil.isNotExists(username, password);
         User user = servletUtil.signUp(username, password);
-        servletUtil.makeSessionAndGo(username, user);
+        servletUtil.saveUserInSessionAndGo(username, user);
     }
 }
