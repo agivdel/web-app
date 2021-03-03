@@ -2,7 +2,7 @@ package agivdel.webApp1311.service;
 
 import agivdel.webApp1311.entities.Balance;
 import agivdel.webApp1311.entities.User;
-import agivdel.webApp1311.password.PBKDF2;
+import agivdel.webApp1311.utils.PBKDF2;
 import agivdel.webApp1311.utils.ConnectionCreator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

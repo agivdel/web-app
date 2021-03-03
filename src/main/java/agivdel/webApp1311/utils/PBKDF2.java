@@ -1,4 +1,4 @@
-package agivdel.webApp1311.password;
+package agivdel.webApp1311.utils;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;

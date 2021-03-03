@@ -1,6 +1,6 @@
 package agivdel.webApp1311.PBKDF2;
 
-import agivdel.webApp1311.password.PBKDF2;
+import agivdel.webApp1311.utils.PBKDF2;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
