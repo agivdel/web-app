@@ -17,13 +17,19 @@ public class ServletUtil {
     private final HttpServlet servlet;
     private final HttpServletRequest req;
     private final HttpServletResponse resp;
-    private final String forwardAddress;
+    private final String addressIfError;
+    private final String addressIfSuccess;
 
-    public ServletUtil(HttpServlet servlet, HttpServletRequest req, HttpServletResponse resp, String forwardAddress) {
+    public ServletUtil(HttpServlet servlet,
+                       HttpServletRequest req,
+                       HttpServletResponse resp,
+                       String addressIfError,
+                       String addressIfSuccess) {
         this.servlet = servlet;
         this.req = req;
         this.resp = resp;
-        this.forwardAddress = forwardAddress;
+        this.addressIfError = addressIfError;
+        this.addressIfSuccess = addressIfSuccess;
     }
 
     public void valid(String username, String password) throws ServletException, IOException {
@@ -90,10 +96,10 @@ public class ServletUtil {
     private void repeat(String username, String password, String errorMessage) throws ServletException, IOException {
         req.setAttribute("errorMessage", errorMessage);
         req.setAttribute("user", new User(username, password));
-        servlet.getServletContext().getRequestDispatcher(forwardAddress).forward(req, resp);
+        servlet.getServletContext().getRequestDispatcher(addressIfError).forward(req, resp);
     }
 
-    public void makeSessionAndGo(String username, User user, String successAddress) throws ServletException, IOException {
+    public void makeSessionAndGo(String username, User user) throws ServletException, IOException {
         HttpSession session = req.getSession();
         session.setAttribute("authenticatedUsername", username);
         session.setAttribute("authenticatedUser", user);
@@ -105,7 +111,7 @@ public class ServletUtil {
         }
         req.setAttribute("balance", balance);
         req.setAttribute("username", username);
-        servlet.getServletContext().getRequestDispatcher(successAddress).forward(req, resp);
+        servlet.getServletContext().getRequestDispatcher(addressIfSuccess).forward(req, resp);
     }
 
 }

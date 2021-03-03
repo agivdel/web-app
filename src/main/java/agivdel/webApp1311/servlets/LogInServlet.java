@@ -12,13 +12,13 @@ import java.io.IOException;
 
 @WebServlet(urlPatterns = {"/login", "/login-servlet"})
 public class LogInServlet extends HttpServlet {
-    private final String errorAddress = "/index.jsp";
-    private final String successAddress = "/payment.jsp";
+    private final String addressIfError = "/index.jsp";
+    private final String addressIfSuccess = "/payment.jsp";
     //при успешной аутентификации выдает токен
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        this.getServletContext().getRequestDispatcher(errorAddress).forward(req, resp);
+        this.getServletContext().getRequestDispatcher(addressIfError).forward(req, resp);
     }
 
     @Override
@@ -26,10 +26,10 @@ public class LogInServlet extends HttpServlet {
         String username = req.getParameter("username");
         String password = req.getParameter("password");
 
-        ServletUtil servletUtil = new ServletUtil(this, req, resp, errorAddress);
+        ServletUtil servletUtil = new ServletUtil(this, req, resp, addressIfError, addressIfSuccess);
         servletUtil.valid(username, password);
         servletUtil.isExists(username, password);
         User user = servletUtil.authentication(username, password);
-        servletUtil.makeSessionAndGo(username, user, successAddress);
+        servletUtil.makeSessionAndGo(username, user);
     }
 }

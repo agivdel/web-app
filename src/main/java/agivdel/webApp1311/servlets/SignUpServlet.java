@@ -13,12 +13,12 @@ import java.io.IOException;
 
 @WebServlet(urlPatterns = {"/signup", "/signup-servlet"})
 public class SignUpServlet extends HttpServlet {
-    private final String errorAddress = "/index.jsp";
-    private final String successAddress = "/payment.jsp";
+    private final String addressIfError = "/index.jsp";
+    private final String addressIfSuccess = "/payment.jsp";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        this.getServletContext().getRequestDispatcher(errorAddress).forward(req, resp);
+        this.getServletContext().getRequestDispatcher(addressIfError).forward(req, resp);
     }
 
     @Override
@@ -26,10 +26,10 @@ public class SignUpServlet extends HttpServlet {
         String username = req.getParameter("username");
         String password = req.getParameter("password");
 
-        ServletUtil servletUtil = new ServletUtil(this, req, resp, errorAddress);
+        ServletUtil servletUtil = new ServletUtil(this, req, resp, addressIfError, addressIfSuccess);
         servletUtil.valid(username, password);
         servletUtil.isNotExists(username, password);
         User user = servletUtil.signUp(username, password);
-        servletUtil.makeSessionAndGo(username, user, successAddress);
+        servletUtil.makeSessionAndGo(username, user);
     }
 }
