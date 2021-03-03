@@ -12,7 +12,7 @@ public class ConnectionPoolTomcat {
     public Connection getConnection() {
         Connection con = null;
         try {
-            Context envContext = (Context) new InitialContext().lookup("java:/comp/env");
+            Context envContext = (Context) new InitialContext().lookup("java:comp/env");
             DataSource dataSource = (DataSource) envContext.lookup("jdbc/webApp1311");
             con = dataSource.getConnection();
         } catch (NamingException e) {
