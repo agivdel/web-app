@@ -1,11 +1,14 @@
 package agivdel.webApp1311.service;
 
 import agivdel.webApp1311.entities.Balance;
+import agivdel.webApp1311.utils.ConnectionCreator;
 import agivdel.webApp1311.utils.ConnectionPoolHikariCP;
 import agivdel.webApp1311.password.PBKDF2;
+import agivdel.webApp1311.utils.ConnectionPoolTomcat;
 import agivdel.webApp1311.utils.PropertiesReader;
 import agivdel.webApp1311.dao.UserDao;
 import agivdel.webApp1311.entities.User;
+import org.apache.tomcat.jdbc.pool.ConnectionPool;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -15,7 +18,7 @@ public class Service {
 
     public boolean authentication(String username, String password) throws Exception {
         User storedUser = findUser(username);
-        return comparePasswords(password, storedUser.getPassword());
+        return PBKDF2.compare(password, storedUser.getPassword());
     }
 
     public boolean isUserExists(String username) throws Exception {
@@ -28,39 +31,30 @@ public class Service {
         return doTransaction(con -> {
             int userId = userDao.insertUser(con, username);
             userDao.insertBalance(con, userId, startBalance());
-            userDao.updatePassword(con, userId, saltPassword(password));
-            return null;
+            String saltedHash = PBKDF2.getSaltedHash(password);
+            userDao.updatePassword(con, userId, saltedHash);
+            return true;
         });
     }
 
     public User findUser(String username) throws Exception {
         UserDao userDao = new UserDao();
-        return doTransaction(con -> {
-            User storedUser = null;
-            storedUser = userDao.selectUser(con, username);
-            return storedUser;
-        });
+        return doTransaction(con -> userDao.selectUser(con, username));
     }
 
     public Balance findBalance(int userId) throws Exception {
         UserDao userDao = new UserDao();
-        return doTransaction(con -> {
-            Balance storedBalance = null;
-            storedBalance = userDao.selectBalance(con, userId);
-            return storedBalance;
-        });
+        return doTransaction(con -> userDao.selectBalance(con, userId));
     }
 
     public long pay(String username) throws Exception {//TODO заменить на int userId?
         UserDao userDao = new UserDao();
         return doTransaction(con -> {
-            User storedUser = null;
-            storedUser = userDao.selectUser(con, username);
-            Balance storedBalance = null;
-            storedBalance = userDao.selectBalance(con, storedUser.getId());
+            User storedUser = userDao.selectUser(con, username);
+            Balance storedBalance = userDao.selectBalance(con, storedUser.getId());
             long subtotal = storedBalance.getValue() - paymentUnit();
             if (subtotal <= lowerLimit()) {
-                throw  new Exception("There are not enough funds on your account");
+                throw  new Exception("there are not enough funds on your account");
             }
             userDao.updateBalance(con, storedUser.getId(), subtotal);
             userDao.insertPayment(con, storedUser.getId(), paymentUnit());
@@ -73,15 +67,18 @@ public class Service {
     }
 
     private <T> T doTransaction(Transaction<T> transaction) throws Exception {
-        ConnectionPoolHikariCP pool = new ConnectionPoolHikariCP();//TODO проблемы с пулом
-        Connection con = pool.getConnection();
+//        ConnectionPoolHikariCP pool = new ConnectionPoolHikariCP();//TODO проблемы с пулом
+//        ConnectionPoolTomcat pool = new ConnectionPoolTomcat();
+//        Connection con = pool.getConnection();
+        ConnectionCreator creator = new ConnectionCreator();//
+        Connection con = creator.getConnection();
         try {
             con.setAutoCommit(false);
             T result = transaction.run(con);
             con.commit();
             return result;
         } catch (Exception e) {
-            Exception exception = new Exception("database access error");
+            Exception exception = new Exception(e.getMessage());
             e.printStackTrace();
             try {
                 con.rollback();
@@ -91,27 +88,9 @@ public class Service {
             }
             throw exception;
         } finally {
-            pool.close(con);
+//            pool.close(con);
+            creator.close(con);//
         }
-    }
-
-    private boolean comparePasswords(String password, String storedPassword) {
-        try {
-            return PBKDF2.compare(password, storedPassword);
-        } catch (Exception e) {
-            System.err.println("failed to hash the password. Re-enter the data for registration");
-        }
-        return false;
-    }
-
-    private String saltPassword(String password) {
-        try {
-            return PBKDF2.getSaltedHash(password);
-        } catch (Exception e) {
-            System.err.println("failed to hash the password. Re-enter the data for registration");
-            e.printStackTrace();//TODO
-        }
-        return password;
     }
 
     /**
