@@ -102,7 +102,7 @@ public class ServletUtil {
     public void makeSessionAndGo(String username, User user) throws ServletException, IOException {
         HttpSession session = req.getSession();
         session.setAttribute("authenticatedUsername", username);
-        session.setAttribute("authenticatedUser", user);
+        session.setAttribute("authenticatedUser", user);//TODO можно убрать, хватит и аттрибута username
         long balance = 0;
         try {
             balance = new Service().findBalance(user.getId()).getValue();
