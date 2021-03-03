@@ -2,10 +2,7 @@ package agivdel.webApp1311.service;
 
 import agivdel.webApp1311.entities.User;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.*;
 
 import java.io.IOException;
 
@@ -99,18 +96,48 @@ public class ServletUtil {
         servlet.getServletContext().getRequestDispatcher(addressIfError).forward(req, resp);
     }
 
-    public void makeSessionAndGo(String username, User user) throws ServletException, IOException {
+    public void saveUserInSessionAndGo(String username, User user) throws ServletException, IOException {
         HttpSession session = req.getSession();
+
         session.setAttribute("authenticatedUsername", username);
-        session.setAttribute("authenticatedUser", user);//TODO можно убрать, хватит и аттрибута username
+
+        storeUserCookie(resp, username);
+
         long balance = 0;
         try {
             balance = new Service().findBalance(user.getId()).getValue();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         req.setAttribute("balance", balance);
         req.setAttribute("username", username);
         servlet.getServletContext().getRequestDispatcher(addressIfSuccess).forward(req, resp);
+    }
+
+    public static void storeUserCookie(HttpServletResponse resp, String username) {
+        Cookie cookieUsername = new Cookie("username", username);
+        System.out.println("username in cookie: " + username);
+        cookieUsername.setMaxAge(24 * 60 * 60);// 1 день в секундах
+        resp.addCookie(cookieUsername);
+    }
+
+    public static String getUsernameInCookie(HttpServletRequest req) {
+        Cookie[] cookies = req.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("username".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
+    public static void deleteUserCookie(HttpServletResponse resp) {
+        Cookie cookieUserName = new Cookie("username", null);
+        //cookie недействительна через 0 секунд
+        cookieUserName.setMaxAge(0);
+        resp.addCookie(cookieUserName);
     }
 }
