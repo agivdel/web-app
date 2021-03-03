@@ -4,7 +4,6 @@ import agivdel.webApp1311.entities.Balance;
 import agivdel.webApp1311.entities.Payment;
 import agivdel.webApp1311.entities.User;
 
-import javax.naming.NameNotFoundException;
 import java.lang.String;
 import java.sql.*;
 import java.util.ArrayList;
