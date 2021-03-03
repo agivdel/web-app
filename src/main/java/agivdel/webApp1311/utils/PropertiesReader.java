@@ -11,7 +11,6 @@ public class PropertiesReader {
             InputStream input = PropertiesReader.class.getClassLoader().getResourceAsStream("application.properties");
             property.load(input);
         } catch (IOException e) {
-            System.err.println("failed to load the file 'application.properties'");
             e.printStackTrace();
         }
         return property;
