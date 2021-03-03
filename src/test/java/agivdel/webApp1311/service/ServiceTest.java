@@ -2,13 +2,18 @@ package agivdel.webApp1311.service;
 
 import agivdel.webApp1311.entities.Balance;
 import agivdel.webApp1311.entities.User;
+import agivdel.webApp1311.password.PBKDF2;
 import agivdel.webApp1311.utils.ConnectionCreator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,64 +41,70 @@ public class ServiceTest {
 
 
     @Test
-    public void SignUp_CorrectReturnTrue() throws Exception {
+    public void signUp_return_true_after_signup() throws Exception {
         String username = "Bob";
         String password = "Bob123";
+
         assertTrue(service.signUp(username, password));
     }
 
     @Test
-    public void SignUp_CorrectStartBalance() throws Exception {
+    public void signUp_correct_start_balance() throws Exception {
         String username = "Bob";
         String password = "Bob123";
         service.signUp(username, password);
         User storedUser = service.findUser(username);
         Balance storedBalance = service.findBalance(storedUser.getId());
+
         assertEquals(800, storedBalance.getValue());
     }
 
     @Test
-    public void SignUp_CorrectSetSaltedHashPassword() throws Exception {
+    public void signUp_inserted_saltedHash_not_equals_password() throws Exception {
         String username = "Bob";
         String password = "Bob123";
         service.signUp(username, password);
         User storedUser = service.findUser(username);
+
         assertNotEquals("Bob123", storedUser.getPassword());
     }
 
     @Test
-    public void findUser_FromEmptyDBReturnsNull() throws Exception {
-        String username = "Arkady";
-        String password = "ArkadyTheGreat3";
+    public void findUser_returns_null_from_empty_DB() throws Exception {
+        String username = "Bob";
         User storedUser = service.findUser(username);
-        assertNull(storedUser.getUsername());
-        assertEquals(0, storedUser.getId());
+
+        assertNull(storedUser);
     }
 
     @Test
-    public void findUser_WhenUserExistsInDB() throws Exception {
+    public void findUser_returns_User_when_it_exists_in_DB() throws Exception {
         String username = "Arkady";
         String password = "ArkadyTheGreat3";
-        User user = new User(username, password);
         service.signUp(username, password);
         User storedUser = service.findUser(username);
-        assertEquals(user, storedUser);
+        boolean isEqual = PBKDF2.compare(password, storedUser.getPassword());
+
+        assertEquals(username, storedUser.getUsername());
+        assertTrue(isEqual);
     }
 
     @Test
-    public void authentication_WithTheSameUserReturnsTrue() throws Exception {
+    public void authentication_returns_true_for_the_same_username_and_password() throws Exception {
         String username = "Shchekn";
         String password = "SuperDog";
+
         assertTrue(service.signUp(username, password));
         assertTrue(service.authentication(username, password));
     }
 
     @Test
-    public void authentication_WithDifferentUsersReturnsFalse() throws Exception {
+    public void authentication_returns_false_for_the_same_username_and_other_password() throws Exception {
         String username = "Shchekn";
         String password = "SuperDog";
         assertTrue(service.signUp(username, password));
         String otherPassword = "SuperDog222";
+
         assertFalse(service.authentication(username, otherPassword));
     }
 
@@ -104,32 +115,43 @@ public class ServiceTest {
         service.signUp(username, password);
         int userId = service.findUser(username).getId();
 
-        service.pay(username);
+        long afterFirstPayment = service.pay(username);
         Balance storedBalance = service.findBalance(userId);
-        assertEquals(690, storedBalance.getValue());
+        assertEquals(afterFirstPayment, storedBalance.getValue());
 
-        service.pay(username);
+        long afterSecondPayment = service.pay(username);
         storedBalance = service.findBalance(userId);
-        assertEquals(580, storedBalance.getValue());
+        assertEquals(afterSecondPayment, storedBalance.getValue());
     }
 
     @Test
-    public void pay_BalanceCannotBeLessThanLowerLimit() throws Exception {
+    public void pay_balance_cannot_be_lower_than_the_lowerLimit() throws Exception {
         String username = "Bob";
         String password = "Bob123";
         service.signUp(username, password);
-        User storedUser = service.findUser(username);
 
-        long lowerLimit = 0;
         long startBalance = 800;
-        long paymentUnit = 110;
-        int x = 10;
-        while (x >= 0) {
-            service.pay(username);
-            x--;
+        long unit = 110;
+        long lowerLimit = 0;
+
+        String path = "src/main/resources/applicationBlank.properties";
+
+        try {
+            Properties property = new Properties();
+            property.load(new FileInputStream(path));
+            property.setProperty("payment.startBalance", String.valueOf(startBalance));
+            property.setProperty("payment.unit", String.valueOf(unit));
+            property.setProperty("payment.lowerLimit", String.valueOf(lowerLimit));
+            property.store(new FileOutputStream(path), "");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-        long balance = (startBalance - lowerLimit) % paymentUnit;
-        long storedBalance = service.findBalance(storedUser.getId()).getValue();
-        assertEquals(balance, storedBalance);
+
+        long balance = 0;
+        for (int i = 0; i < 10; i++) {
+            balance = service.pay(username);
+        }
+
+        assertEquals(balance, startBalance % unit);
     }
 }
