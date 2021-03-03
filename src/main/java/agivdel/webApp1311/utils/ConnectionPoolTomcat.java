@@ -15,9 +15,7 @@ public class ConnectionPoolTomcat {
             Context envContext = (Context) new InitialContext().lookup("java:comp/env");
             DataSource dataSource = (DataSource) envContext.lookup("jdbc/webApp1311");
             con = dataSource.getConnection();
-        } catch (NamingException e) {
-            e.printStackTrace();
-        } catch (SQLException e) {
+        } catch (NamingException | SQLException e) {
             e.printStackTrace();
         }
         return con;

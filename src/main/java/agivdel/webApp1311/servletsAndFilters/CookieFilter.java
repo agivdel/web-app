@@ -1,8 +1,6 @@
 package agivdel.webApp1311.servletsAndFilters;
 
-import agivdel.webApp1311.entities.User;
-import agivdel.webApp1311.service.Service;
-import agivdel.webApp1311.service.ServletUtil;
+import agivdel.webApp1311.utils.CookieUtil;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +19,6 @@ public class CookieFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpSession session = req.getSession();
-
         String authenticatedUsername = (String) session.getAttribute("authenticatedUsername");
 
         if (authenticatedUsername != null) {
@@ -29,17 +26,11 @@ public class CookieFilter implements Filter {
             filterChain.doFilter(request, response);
             return;
         }
-        System.out.println("authenticatedUsername == null");
+
         String checked = (String) session.getAttribute("checked_cookie");
-        System.out.println("checked: " + checked);
         if (checked == null) {
-            String username = ServletUtil.getUsernameInCookie(req);
-            try {
-                User user = new Service().findUser(username);
-                session.setAttribute("authenticatedUsername", username);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            String username = CookieUtil.getUsernameInCookie(req);
+            session.setAttribute("authenticatedUsername", username);
             session.setAttribute("checked_cookie", "checked");
         }
         filterChain.doFilter(request, response);

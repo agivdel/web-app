@@ -1,6 +1,6 @@
 package agivdel.webApp1311.servletsAndFilters;
 
-import agivdel.webApp1311.service.ServletUtil;
+import agivdel.webApp1311.service.ServletService;
 import agivdel.webApp1311.entities.User;
 
 import jakarta.servlet.ServletException;
@@ -26,10 +26,10 @@ public class SignUpServlet extends HttpServlet {
         String username = req.getParameter("username");
         String password = req.getParameter("password");
 
-        ServletUtil servletUtil = new ServletUtil(this, req, resp, addressIfError, addressIfSuccess);
-        servletUtil.valid(username, password);
-        servletUtil.isNotExists(username, password);
-        User user = servletUtil.signUp(username, password);
-        servletUtil.saveUserInSessionAndGo(username, user);
+        ServletService servletService = new ServletService(this, req, resp, addressIfError, addressIfSuccess);
+        servletService.valid(username, password);
+        servletService.isNotExists(username, password);
+        User user = servletService.signUp(username, password);
+        servletService.saveUserInSessionAndGo(username, user.getId());
     }
 }

@@ -18,7 +18,6 @@ public class UserDaoTest {
     private static Connection con;
     private static UserDao userDao;
 
-
     private void clearDB() throws SQLException {
         con.createStatement().execute("DELETE FROM users");
         con.createStatement().execute("DELETE FROM balances");

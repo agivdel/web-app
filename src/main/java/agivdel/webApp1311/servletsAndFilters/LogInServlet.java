@@ -1,6 +1,6 @@
 package agivdel.webApp1311.servletsAndFilters;
 
-import agivdel.webApp1311.service.ServletUtil;
+import agivdel.webApp1311.service.ServletService;
 import agivdel.webApp1311.entities.User;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -14,7 +14,7 @@ import java.io.IOException;
 public class LogInServlet extends HttpServlet {
     private final String addressIfError = "/index.jsp";
     private final String addressIfSuccess = "/payment.jsp";
-    //при успешной аутентификации имя сохраняется в куки, пользователь - в сессии
+    //при успешной аутентификации имя сохраняется в куки и в сессии
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -26,10 +26,10 @@ public class LogInServlet extends HttpServlet {
         String username = req.getParameter("username");
         String password = req.getParameter("password");
 
-        ServletUtil servletUtil = new ServletUtil(this, req, resp, addressIfError, addressIfSuccess);
-        servletUtil.valid(username, password);
-        servletUtil.isExists(username, password);
-        User user = servletUtil.authentication(username, password);
-        servletUtil.saveUserInSessionAndGo(username, user);
+        ServletService servletService = new ServletService(this, req, resp, addressIfError, addressIfSuccess);
+        servletService.valid(username, password);
+        servletService.isExists(username, password);
+        User user = servletService.authentication(username, password);
+        servletService.saveUserInSessionAndGo(username, user.getId());
     }
 }

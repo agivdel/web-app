@@ -1,5 +1,5 @@
 
-<%@ page contentType="text/html;charset=UTF-8" language="java" errorPage="error.jsp" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
     <title>registration</title>

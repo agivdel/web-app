@@ -1,6 +1,7 @@
 package agivdel.webApp1311.service;
 
 import agivdel.webApp1311.entities.User;
+import agivdel.webApp1311.utils.CookieUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 
@@ -10,18 +11,18 @@ import java.io.IOException;
  * The class contains methods for validating the user data (name, password).
  */
 
-public class ServletUtil {
+public class ServletService {
     private final HttpServlet servlet;
     private final HttpServletRequest req;
     private final HttpServletResponse resp;
     private final String addressIfError;
     private final String addressIfSuccess;
 
-    public ServletUtil(HttpServlet servlet,
-                       HttpServletRequest req,
-                       HttpServletResponse resp,
-                       String addressIfError,
-                       String addressIfSuccess) {
+    public ServletService(HttpServlet servlet,
+                          HttpServletRequest req,
+                          HttpServletResponse resp,
+                          String addressIfError,
+                          String addressIfSuccess) {
         this.servlet = servlet;
         this.req = req;
         this.resp = resp;
@@ -96,16 +97,14 @@ public class ServletUtil {
         servlet.getServletContext().getRequestDispatcher(addressIfError).forward(req, resp);
     }
 
-    public void saveUserInSessionAndGo(String username, User user) throws ServletException, IOException {
+    public void saveUserInSessionAndGo(String username, int userId) throws ServletException, IOException {
         HttpSession session = req.getSession();
-
         session.setAttribute("authenticatedUsername", username);
-
-        storeUserCookie(resp, username);
+        CookieUtil.storeUserCookie(resp, username);
 
         long balance = 0;
         try {
-            balance = new Service().findBalance(user.getId()).getValue();
+            balance = new Service().findBalance(userId).getValue();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -113,31 +112,5 @@ public class ServletUtil {
         req.setAttribute("balance", balance);
         req.setAttribute("username", username);
         servlet.getServletContext().getRequestDispatcher(addressIfSuccess).forward(req, resp);
-    }
-
-    public static void storeUserCookie(HttpServletResponse resp, String username) {
-        Cookie cookieUsername = new Cookie("username", username);
-        System.out.println("username in cookie: " + username);
-        cookieUsername.setMaxAge(24 * 60 * 60);// 1 день в секундах
-        resp.addCookie(cookieUsername);
-    }
-
-    public static String getUsernameInCookie(HttpServletRequest req) {
-        Cookie[] cookies = req.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("username".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
-    }
-
-    public static void deleteUserCookie(HttpServletResponse resp) {
-        Cookie cookieUserName = new Cookie("username", null);
-        //cookie недействительна через 0 секунд
-        cookieUserName.setMaxAge(0);
-        resp.addCookie(cookieUserName);
     }
 }
