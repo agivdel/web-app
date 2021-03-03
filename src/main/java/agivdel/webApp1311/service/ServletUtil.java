@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 
@@ -12,13 +13,13 @@ import java.io.IOException;
  * The class contains methods for validating the user data (name, password).
  */
 
-public class CheckUser {
+public class ServletUtil {
     private final HttpServlet servlet;
     private final HttpServletRequest req;
     private final HttpServletResponse resp;
     private final String forwardAddress;
 
-    public CheckUser(HttpServlet servlet, HttpServletRequest req, HttpServletResponse resp, String forwardAddress) {
+    public ServletUtil(HttpServlet servlet, HttpServletRequest req, HttpServletResponse resp, String forwardAddress) {
         this.servlet = servlet;
         this.req = req;
         this.resp = resp;
@@ -31,7 +32,7 @@ public class CheckUser {
         }
     }
 
-    public void notExists(String username, String password) throws ServletException, IOException {
+    public void isNotExists(String username, String password) throws ServletException, IOException {
         try {
             if (new Service().isUserExists(username)) {
                 repeat(username, password, "this name is already registered");
@@ -41,7 +42,7 @@ public class CheckUser {
         }
     }
 
-    public void exists(String username, String password) throws ServletException, IOException {
+    public void isExists(String username, String password) throws ServletException, IOException {
         try {
             if (!new Service().isUserExists(username)) {
                 repeat(username, password, "this username was not found");
@@ -91,4 +92,20 @@ public class CheckUser {
         req.setAttribute("user", new User(username, password));
         servlet.getServletContext().getRequestDispatcher(forwardAddress).forward(req, resp);
     }
+
+    public void makeSessionAndGo(String username, User user, String successAddress) throws ServletException, IOException {
+        HttpSession session = req.getSession();
+        session.setAttribute("authenticatedUsername", username);
+        session.setAttribute("authenticatedUser", user);
+        long balance = 0;
+        try {
+            balance = new Service().findBalance(user.getId()).getValue();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        req.setAttribute("balance", balance);
+        req.setAttribute("username", username);
+        servlet.getServletContext().getRequestDispatcher(successAddress).forward(req, resp);
+    }
+
 }
