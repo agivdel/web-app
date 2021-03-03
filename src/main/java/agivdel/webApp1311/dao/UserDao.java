@@ -39,13 +39,13 @@ public class UserDao {
         pstUsers.executeUpdate();
     }
 
-    public User selectUser(Connection con, String username) throws NameNotFoundException, SQLException {
+    public User selectUser(Connection con, String username) throws SQLException {
         PreparedStatement pstUser = con.prepareStatement(SELECT_ID_PASSWORD_WHERE_USERNAME);
         pstUser.setString(1, username);
 
         ResultSet resultSetUser = pstUser.executeQuery();
         if (!resultSetUser.next()) {
-            throw new NameNotFoundException("username '" + username + "' was not found");
+            return null;//TODO или создать new NameNotFoundException?
         }
         int userId = resultSetUser.getInt(1);
         String password = resultSetUser.getString(2);
@@ -66,13 +66,13 @@ public class UserDao {
         pstBalances.executeUpdate();
     }
 
-    public Balance selectBalance(Connection con, int userId) throws NameNotFoundException, SQLException {
+    public Balance selectBalance(Connection con, int userId) throws SQLException {
         PreparedStatement pstBalance = con.prepareStatement(SELECT_BALANCE_WHERE_ID);
         pstBalance.setInt(1, userId);
 
         ResultSet resultSetBalance = pstBalance.executeQuery();
         if (!resultSetBalance.next()) {
-            throw new NameNotFoundException("userId " + userId + " was not found");
+            return null;//TODO или создать new NameNotFoundException?
         }
         return new Balance(userId, resultSetBalance.getLong(1));
     }
