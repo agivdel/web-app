@@ -12,26 +12,26 @@ import java.io.IOException;
  * The class contains methods for validating the user data (name, password).
  */
 
-public class Check {
+public class CheckUser {
     private final HttpServlet servlet;
     private final HttpServletRequest req;
     private final HttpServletResponse resp;
     private final String forwardAddress;
 
-    public Check(HttpServlet servlet, HttpServletRequest req, HttpServletResponse resp, String forwardAddress) {
+    public CheckUser(HttpServlet servlet, HttpServletRequest req, HttpServletResponse resp, String forwardAddress) {
         this.servlet = servlet;
         this.req = req;
         this.resp = resp;
         this.forwardAddress = forwardAddress;
     }
 
-    public void userValid(String username, String password) throws ServletException, IOException {
+    public void valid(String username, String password) throws ServletException, IOException {
         if (isNotValidEnteredData(username, password)) {
             repeat(username, password, "enter not empty username and password");
         }
     }
 
-    public void userNotExist(String username, String password) throws ServletException, IOException {
+    public void notExists(String username, String password) throws ServletException, IOException {
         try {
             if (new Service().isUserExists(username)) {
                 repeat(username, password, "this name is already registered");
@@ -41,7 +41,7 @@ public class Check {
         }
     }
 
-    public void userExist(String username, String password) throws ServletException, IOException {
+    public void exists(String username, String password) throws ServletException, IOException {
         try {
             if (!new Service().isUserExists(username)) {
                 repeat(username, password, "this username was not found");
@@ -51,26 +51,32 @@ public class Check {
         }
     }
 
-    public User userAuthentication(String username, String password) throws ServletException, IOException {
+    public User authentication(String username, String password) throws ServletException, IOException {
+        Service service = new Service();
+        User user = null;
         try {
-            if (!new Service().authentication(username, password)) {
+            if (!service.authentication(username, password)) {
                 repeat(username, password, "invalid username-password pair");
             }
+            user = service.findUser(username);
         } catch (Exception e) {
             repeat(username, password, e.getMessage());
         }
-        return new User(username, password);
+        return user;
     }
 
-    public User userSignUp(String username, String password) throws ServletException, IOException {
+    public User signUp(String username, String password) throws ServletException, IOException {
+        Service service = new Service();
+        User user = null;
         try {
             if (!new Service().signUp(username, password)) {
                 repeat(username, password, "registration error, please try again");
             }
+            user = service.findUser(username);
         } catch (Exception e) {
             repeat(username, password, e.getMessage());
         }
-        return new User(username, password);
+        return user;
     }
 
     private static boolean isNotValidEnteredData(String username, String password) {
