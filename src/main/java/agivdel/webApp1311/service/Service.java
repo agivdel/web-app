@@ -2,13 +2,11 @@ package agivdel.webApp1311.service;
 
 import agivdel.webApp1311.entities.Balance;
 import agivdel.webApp1311.utils.ConnectionCreator;
-import agivdel.webApp1311.utils.ConnectionPoolHikariCP;
-import agivdel.webApp1311.password.PBKDF2;
 import agivdel.webApp1311.utils.ConnectionPoolTomcat;
+import agivdel.webApp1311.utils.PBKDF2;
 import agivdel.webApp1311.utils.PropertiesReader;
 import agivdel.webApp1311.dao.UserDao;
 import agivdel.webApp1311.entities.User;
-import org.apache.tomcat.jdbc.pool.ConnectionPool;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -54,7 +52,7 @@ public class Service {
             Balance storedBalance = userDao.selectBalance(con, storedUser.getId());
             long subtotal = storedBalance.getValue() - paymentUnit();
             if (subtotal <= lowerLimit()) {
-                throw  new Exception("there are not enough funds on your account");
+                return storedBalance.getValue();
             }
             userDao.updateBalance(con, storedUser.getId(), subtotal);
             userDao.insertPayment(con, storedUser.getId(), paymentUnit());
@@ -68,10 +66,10 @@ public class Service {
 
     private <T> T doTransaction(Transaction<T> transaction) throws Exception {
 //        ConnectionPoolHikariCP pool = new ConnectionPoolHikariCP();//TODO проблемы с пулом
-//        ConnectionPoolTomcat pool = new ConnectionPoolTomcat();
-//        Connection con = pool.getConnection();
-        ConnectionCreator creator = new ConnectionCreator();//
-        Connection con = creator.getConnection();
+        ConnectionPoolTomcat pool = new ConnectionPoolTomcat();//TODO проблемы с new InitialContext()
+        Connection con = pool.getConnection();
+//        ConnectionCreator creator = new ConnectionCreator();//
+//        Connection con = creator.getConnection();
         try {
             con.setAutoCommit(false);
             T result = transaction.run(con);
@@ -88,8 +86,8 @@ public class Service {
             }
             throw exception;
         } finally {
-//            pool.close(con);
-            creator.close(con);//
+            pool.close(con);
+//            creator.close(con);//
         }
     }
 
