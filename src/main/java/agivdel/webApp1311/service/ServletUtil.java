@@ -113,5 +113,4 @@ public class ServletUtil {
         req.setAttribute("username", username);
         servlet.getServletContext().getRequestDispatcher(addressIfSuccess).forward(req, resp);
     }
-
 }
