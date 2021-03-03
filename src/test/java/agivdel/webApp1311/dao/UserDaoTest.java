@@ -39,7 +39,7 @@ public class UserDaoTest {
     }
 
     @Test
-    void addUser_return_positive_Int() throws Exception {
+    void insertUser_return_positive_Int() throws Exception {
         String username = "Bob";
         int userId = userDao.insertUser(con, username);
 
